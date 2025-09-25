@@ -1,0 +1,79 @@
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
+diff --git a//dev/null b/index.html
+index 0000000000000000000000000000000000000000..caaabe1d4d3109ce43217af9413584e0b186c467 100644
+--- a//dev/null
++++ b/index.html
+@@ -0,0 +1,70 @@
++<!DOCTYPE html>
++<html lang="fr">
++<head>
++  <meta charset="utf-8">
++  <meta name="viewport" content="width=device-width, initial-scale=1">
++  <title>Pocket Arcade</title>
++  <meta name="description" content="Portail de mini-jeux mobiles jouables hors ligne.">
++  <link rel="manifest" href="/pwa/manifest.webmanifest">
++  <meta name="theme-color" content="#0b1d33">
++  <link rel="stylesheet" href="/css/styles.css">
++</head>
++<body>
++  <header class="app-header" role="banner">
++    <div class="header-content">
++      <h1>Pocket Arcade</h1>
++      <button id="installButton" class="secondary" aria-label="Installer l'application">Installer</button>
++    </div>
++    <p class="tagline">Jouez partout, même hors connexion.</p>
++    <form id="searchForm" role="search" aria-label="Recherche de jeux">
++      <label class="sr-only" for="searchInput">Rechercher un jeu</label>
++      <input id="searchInput" type="search" placeholder="Rechercher un jeu..." autocomplete="off">
++      <div class="filters">
++        <fieldset>
++          <legend>Filtres</legend>
++          <label><input type="checkbox" value="arcade"> Arcade</label>
++          <label><input type="checkbox" value="action"> Action</label>
++          <label><input type="checkbox" value="casual"> Casual</label>
++          <label><input type="checkbox" value="réflexion"> Réflexion</label>
++          <label><input type="checkbox" value="offline"> Hors ligne</label>
++        </fieldset>
++        <label for="sortSelect">Trier par</label>
++        <select id="sortSelect">
++          <option value="popular">Populaires</option>
++          <option value="recent">Récents</option>
++          <option value="difficulty">Difficulté</option>
++          <option value="title">Nom</option>
++        </select>
++      </div>
++    </form>
++  </header>
++  <main id="catalogue" role="main" aria-live="polite">
++    <div id="gameList" class="game-grid" aria-label="Liste des jeux"></div>
++  </main>
++  <aside id="toast" role="status" aria-live="polite" hidden></aside>
++  <template id="gameCardTemplate">
++    <article class="game-card">
++      <div class="thumb" role="img" aria-label="Vignette"></div>
++      <div class="card-body">
++        <header>
++          <h2></h2>
++          <div class="tags" aria-label="Tags"></div>
++        </header>
++        <p class="description"></p>
++        <footer>
++          <div class="meta">
++            <span class="difficulty" aria-label="Difficulté"></span>
++            <span class="offline-badge" aria-hidden="true">Offline</span>
++          </div>
++          <div class="actions">
++            <a class="primary play" href="#">Jouer</a>
++            <button class="favorite" aria-pressed="false" aria-label="Ajouter aux favoris">⭐</button>
++          </div>
++        </footer>
++      </div>
++    </article>
++  </template>
++  <script type="module" src="/js/app.js" defer></script>
++  <script type="module" src="/js/pwa.js" defer></script>
++</body>
++</html>
+ 
+EOF
+)
