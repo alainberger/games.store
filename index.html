@@ -1,79 +1,1169 @@
- (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a//dev/null b/index.html
-index 0000000000000000000000000000000000000000..caaabe1d4d3109ce43217af9413584e0b186c467 100644
---- a//dev/null
-+++ b/index.html
-@@ -0,0 +1,70 @@
-+<!DOCTYPE html>
-+<html lang="fr">
-+<head>
-+  <meta charset="utf-8">
-+  <meta name="viewport" content="width=device-width, initial-scale=1">
-+  <title>Pocket Arcade</title>
-+  <meta name="description" content="Portail de mini-jeux mobiles jouables hors ligne.">
-+  <link rel="manifest" href="/pwa/manifest.webmanifest">
-+  <meta name="theme-color" content="#0b1d33">
-+  <link rel="stylesheet" href="/css/styles.css">
-+</head>
-+<body>
-+  <header class="app-header" role="banner">
-+    <div class="header-content">
-+      <h1>Pocket Arcade</h1>
-+      <button id="installButton" class="secondary" aria-label="Installer l'application">Installer</button>
-+    </div>
-+    <p class="tagline">Jouez partout, même hors connexion.</p>
-+    <form id="searchForm" role="search" aria-label="Recherche de jeux">
-+      <label class="sr-only" for="searchInput">Rechercher un jeu</label>
-+      <input id="searchInput" type="search" placeholder="Rechercher un jeu..." autocomplete="off">
-+      <div class="filters">
-+        <fieldset>
-+          <legend>Filtres</legend>
-+          <label><input type="checkbox" value="arcade"> Arcade</label>
-+          <label><input type="checkbox" value="action"> Action</label>
-+          <label><input type="checkbox" value="casual"> Casual</label>
-+          <label><input type="checkbox" value="réflexion"> Réflexion</label>
-+          <label><input type="checkbox" value="offline"> Hors ligne</label>
-+        </fieldset>
-+        <label for="sortSelect">Trier par</label>
-+        <select id="sortSelect">
-+          <option value="popular">Populaires</option>
-+          <option value="recent">Récents</option>
-+          <option value="difficulty">Difficulté</option>
-+          <option value="title">Nom</option>
-+        </select>
-+      </div>
-+    </form>
-+  </header>
-+  <main id="catalogue" role="main" aria-live="polite">
-+    <div id="gameList" class="game-grid" aria-label="Liste des jeux"></div>
-+  </main>
-+  <aside id="toast" role="status" aria-live="polite" hidden></aside>
-+  <template id="gameCardTemplate">
-+    <article class="game-card">
-+      <div class="thumb" role="img" aria-label="Vignette"></div>
-+      <div class="card-body">
-+        <header>
-+          <h2></h2>
-+          <div class="tags" aria-label="Tags"></div>
-+        </header>
-+        <p class="description"></p>
-+        <footer>
-+          <div class="meta">
-+            <span class="difficulty" aria-label="Difficulté"></span>
-+            <span class="offline-badge" aria-hidden="true">Offline</span>
-+          </div>
-+          <div class="actions">
-+            <a class="primary play" href="#">Jouer</a>
-+            <button class="favorite" aria-pressed="false" aria-label="Ajouter aux favoris">⭐</button>
-+          </div>
-+        </footer>
-+      </div>
-+    </article>
-+  </template>
-+  <script type="module" src="/js/app.js" defer></script>
-+  <script type="module" src="/js/pwa.js" defer></script>
-+</body>
-+</html>
- 
-EOF
-)
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
+<title>Ring Spark — Boxe Mobile (Prototype PWA-like)</title>
+<meta name="theme-color" content="#0f0f14"/>
+
+<style>
+/* =========================
+   RING SPARK — STYLE GLOBAL
+   Manga coréen + touche South Park (UI lisible / gros boutons)
+   ========================= */
+:root{
+  --bg:#0b0c10;
+  --panel:#13151d;
+  --panel-2:#181b25;
+  --ink:#f2f5f7;
+  --muted:#a8b0ba;
+  --accent:#57d6ff;
+  --accent-2:#ff6aa0;
+  --good:#38e38e;
+  --warn:#ffd363;
+  --bad:#ff6a6a;
+  --brand:#7b8cff;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+  background: radial-gradient(1200px 900px at 70% 20%, #10121a 0%, #0b0c10 60%, #07080b 100%);
+  color:var(--ink);
+  overflow:hidden;
+}
+
+/* Layout principal */
+.app{
+  display:grid;
+  grid-template-columns: minmax(0,1fr) 360px;
+  grid-template-areas: "stage sidebar";
+  height:100dvh;
+}
+@media (max-width: 980px){
+  .app{
+    grid-template-columns: 1fr;
+    grid-template-areas: "stage" "sidebar";
+  }
+}
+
+/* Zone de jeu */
+.stage{
+  grid-area:stage;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px;
+}
+canvas#game{
+  width:100%;
+  height:100%;
+  max-height:100dvh;
+  border-radius:16px;
+  background: linear-gradient(180deg, #111525 0%, #0c0f1a 40%, #0a0d16 100%);
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.05), 0 10px 40px rgba(0,0,0,0.6);
+}
+
+/* Sidebar / Panneau de réglages */
+.sidebar{
+  grid-area:sidebar;
+  background:linear-gradient(180deg,var(--panel) 0%, var(--panel-2) 100%);
+  border-left:1px solid rgba(255,255,255,0.06);
+  padding:14px 14px 80px;
+  overflow:auto;
+}
+.sidebar h2{
+  margin:6px 0 10px;
+  font-size:18px;
+  letter-spacing:.2px;
+}
+.field{
+  display:flex; align-items:center; gap:8px;
+  padding:8px 10px; margin:6px 0;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:10px;
+}
+.field label{flex:1; color:var(--muted); font-size:13px;}
+.field input[type="range"]{flex:1}
+.select, select, button, input[type="number"], input[type="text"]{
+  background:#0e111a; color:var(--ink); border:1px solid rgba(255,255,255,0.1);
+  border-radius:10px; padding:8px 10px; font-size:14px;
+}
+button{
+  cursor:pointer; transition:.15s transform ease, .2s background ease;
+}
+button:hover{transform:translateY(-1px)}
+button:active{transform:translateY(0)}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:10px 12px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);
+  background:linear-gradient(180deg,#1a1f2b,#121620);
+}
+.btn.primary{background:linear-gradient(180deg,#4d68ff,#3344cc); border-color:transparent}
+.btn.success{background:linear-gradient(180deg,#2bbf82,#169e67); border-color:transparent}
+.btn.warn{background:linear-gradient(180deg,#ffcf5a,#e0a31f); color:#111}
+.btn.ghost{background:transparent}
+.row{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+
+/* HUD overlay (mobile boutons) */
+.hud{
+  position:absolute; inset:0; pointer-events:none;
+}
+.hud .btn-guard, .hud .btn-special, .hud .btn-pause{
+  position:absolute; pointer-events:auto; z-index:3;
+  width:74px; height:74px; border-radius:50%;
+  background:linear-gradient(180deg,#20283a,#151b2a);
+  border:1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.35), inset 0 0 0 2px rgba(255,255,255,0.05);
+}
+.hud .btn-guard{left:12px; bottom:20px}
+.hud .btn-special{right:12px; bottom:20px}
+.hud .btn-pause{right:12px; top:12px; width:52px; height:52px; border-radius:13px}
+
+/* Info bars */
+.bar{
+  position:absolute; left:14px; right:14px; top:12px; display:flex; gap:10px; z-index:2;
+}
+.gauge{
+  flex:1; height:14px; border-radius:10px; overflow:hidden;
+  background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);
+}
+.gauge > b{
+  display:block; height:100%; width:50%;
+  background:linear-gradient(90deg, var(--good), #2bd7ff);
+}
+.gauge span{
+  position:absolute; margin-top:-2px; font-size:11px; color:var(--muted);
+}
+
+/* Tutoriel et overlays */
+.overlay{
+  position:absolute; inset:0; background:rgba(7,9,13,0.78);
+  display:none; align-items:center; justify-content:center; text-align:left;
+  padding:16px; z-index:5;
+}
+.overlay.open{display:flex}
+.panel{
+  width:min(860px, 92vw);
+  background:linear-gradient(180deg,#151a26,#0f131d);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:16px; padding:16px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+}
+.panel h3{margin:6px 0 12px}
+.panel p{color:var(--muted); line-height:1.5}
+.kbd{display:inline-block; background:#0f1320; border:1px solid rgba(255,255,255,0.12); padding:3px 6px; border-radius:6px; font-size:12px}
+
+/* Debug */
+.badge{
+  position:absolute; left:50%; transform:translateX(-50%);
+  bottom:8px; background:#101522; padding:6px 10px; border-radius:10px; font-size:12px; opacity:.85;
+  border:1px solid rgba(255,255,255,0.1);
+}
+.debug-flag{position:absolute; left:12px; top:12px; z-index:9; padding:4px 8px; border-radius:8px; background:#172033; font-size:12px; border:1px solid rgba(255,255,255,0.15)}
+
+details summary{cursor:pointer; color:var(--accent)}
+hr{border:none; border-top:1px solid rgba(255,255,255,0.08); margin:10px 0}
+.small{font-size:12px; color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- STAGE DE JEU -->
+  <div class="stage">
+    <canvas id="game" width="900" height="1600" aria-label="Ring Spark Game Display"></canvas>
+
+    <!-- HUD -->
+    <div class="hud" aria-hidden="false">
+      <div class="bar">
+        <div class="gauge" id="hpP1" title="Santé P1"><b style="width:100%; background:linear-gradient(90deg,#38e38e,#2bd7ff)"></b></div>
+        <div class="gauge" id="hpP2" title="Santé P2"><b style="width:100%; background:linear-gradient(90deg,#ff6a6a,#ff9f9f)"></b></div>
+      </div>
+      <button class="btn-pause" id="btnPause" aria-label="Pause">II</button>
+      <button class="btn-guard" id="btnGuard" aria-label="Garde">🛡️</button>
+      <button class="btn-special" id="btnSpecial" aria-label="Spéciale">⭐</button>
+      <div class="badge" id="status">Prêt</div>
+      <div class="debug-flag" id="debugFlag" hidden>DEBUG</div>
+    </div>
+
+    <!-- Overlays -->
+    <div class="overlay" id="overlayTutorial">
+      <div class="panel">
+        <h3>📘 Tutoriel rapide</h3>
+        <p><b>Zones</b> : <span class="kbd">gauche</span> = défense/esquive, <span class="kbd">droite</span> = attaque.</p>
+        <ul>
+          <li><b>Tap droite</b> = Jab • <b>Tap prolongé droite</b> = Cross chargé</li>
+          <li><b>Swipe droite→gauche</b> haut/bas = Hook tête/corps</li>
+          <li><b>Swipe bas→haut</b> centre = Uppercut</li>
+          <li><b>Tap gauche</b> = Basculer la garde • <b>Swipe gauche</b> = Esquive</li>
+          <li><b>Bouton ⭐</b> = Spéciale (quand la jauge est pleine)</li>
+        </ul>
+        <div class="row" style="justify-content:flex-end; gap:6px">
+          <button class="btn ghost" id="btnNoHints">Désactiver les bulles d’aide</button>
+          <button class="btn success" id="btnStart">Jouer</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="overlay" id="overlayPause">
+      <div class="panel">
+        <h3>⏸️ Pause</h3>
+        <p class="small">Ajuste les réglages dans le panneau à droite. Les changements sont sauvegardés automatiquement.</p>
+        <div class="row">
+          <button class="btn" id="btnRestart">Recommencer Round</button>
+          <button class="btn success" id="btnResume">Reprendre</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SIDEBAR / CAHIER DES CHARGES OPÉRATIONNEL -->
+  <aside class="sidebar" id="sidebar">
+    <h2>⚙️ Réglages (Sauvegarde auto)</h2>
+
+    <div class="field">
+      <label for="selP1">Personnage Joueur</label>
+      <select id="selP1" class="select"></select>
+    </div>
+    <div class="field">
+      <label for="selP2">Personnage Adverse (IA)</label>
+      <select id="selP2" class="select"></select>
+    </div>
+
+    <div class="row">
+      <button class="btn primary" id="btnSwap">Inverser P1/P2</button>
+      <button class="btn" id="btnMirror">Changer garde (Orthodoxe/Southpaw)</button>
+    </div>
+
+    <hr/>
+
+    <div class="field">
+      <label>Temps par round (sec)</label>
+      <input id="roundTime" type="range" min="45" max="150" step="5"/>
+      <span id="roundTimeVal" class="small">90</span>
+    </div>
+    <div class="field">
+      <label>Nbr de rounds</label>
+      <input id="roundsCount" type="range" min="1" max="5" step="1"/>
+      <span id="roundsCountVal" class="small">3</span>
+    </div>
+    <div class="field">
+      <label>Difficulté IA</label>
+      <input id="aiDifficulty" type="range" min="1" max="10" step="1"/>
+      <span id="aiDifficultyVal" class="small">5</span>
+    </div>
+
+    <div class="field">
+      <label>Multiplicateur dégâts</label>
+      <input id="dmgMult" type="range" min="0.6" max="1.6" step="0.05"/>
+      <span id="dmgMultVal" class="small">1.00</span>
+    </div>
+    <div class="field">
+      <label>Coût stamina</label>
+      <input id="stmCost" type="range" min="0.6" max="1.6" step="0.05"/>
+      <span id="stmCostVal" class="small">1.00</span>
+    </div>
+    <div class="field">
+      <label>Récup stamina</label>
+      <input id="stmRegen" type="range" min="0.6" max="1.6" step="0.05"/>
+      <span id="stmRegenVal" class="small">1.00</span>
+    </div>
+
+    <div class="row">
+      <button class="btn success" id="btnApply">Appliquer aux prochains rounds</button>
+      <button class="btn" id="btnSoftReset">Réglages par défaut</button>
+    </div>
+
+    <hr/>
+
+    <div class="row">
+      <label class="small"><input id="toggleHaptics" type="checkbox" checked/> Vibrations</label>
+      <label class="small"><input id="toggleSFX" type="checkbox" checked/> SFX</label>
+      <label class="small"><input id="toggleHints" type="checkbox" checked/> Aides à l’écran</label>
+      <label class="small"><input id="toggleDebug" type="checkbox"/> Mode debug</label>
+    </div>
+
+    <hr/>
+    <details>
+      <summary>📄 Cahier des charges & Mode d’emploi (ouvrir)</summary>
+      <p class="small">
+        Cet index inclut : moteur Canvas 60 fps, gestes tactiles, IA, stamina, garde, esquive, spéciale, rounds, HUD,
+        tutoriel, panneau de réglages avec sauvegarde locale, et un mode debug (hitboxes, logs).
+        <br/><br/>
+        <b>ZONES DE CONTROLES</b> — Côté <b>droit</b> pour attaquer (tap/jab, press/cross, swipe/hook, swipe up/upper), côté <b>gauche</b> pour défense (tap/garde, swipe/esquive).
+        Le bouton ⭐ déclenche la spéciale si la jauge est pleine.
+        <br/><br/>
+        <b>PARAMÈTRES</b> — Temps de round, nombre de rounds, difficulté IA, multiplicateur de dégâts, coûts/récup de stamina.
+        Ils sont appliqués au prochain engagement (bouton “Appliquer…”).
+        <br/><br/>
+        <b>SAUVEGARDE</b> — Tous les paramètres et le dernier roster choisi sont écrits en <i>localStorage</i> et rechargés au démarrage.
+        <br/><br/>
+        <b>EXTENSION ROSTER</b> — Ajoute des personnages dans <span class="kbd">ROSTER</span> (voir JS, constantes).
+        Chaque perso possède stats, couleurs, spéciale. Le moteur s’adapte automatique aux nouvelles entrées.
+      </p>
+    </details>
+  </aside>
+</div>
+
+<script>
+/* ===========================================================
+   RING SPARK — Moteur Canvas compact
+   Attention au style : mobile-first, gestes, IA simple, sauvegarde settings
+   =========================================================== */
+
+/* -----------------------
+   Utilitaires
+----------------------- */
+const clamp = (v, a, b)=>Math.max(a, Math.min(b, v));
+const lerp = (a,b,t)=>a+(b-a)*t;
+const now = ()=>performance.now();
+const rnd = (a=0,b=1)=>a+Math.random()*(b-a);
+const sign = (x)=>x<0?-1:1;
+
+/* Haptique et SFX très légers (sans dépendances externes) */
+const Haptics = {
+  enabled: true,
+  ping(ms=15){ if(!this.enabled) return; if(navigator.vibrate) try{ navigator.vibrate(ms); }catch{} }
+};
+const SFX = {
+  enabled: true,
+  ctx: null,
+  init(){
+    if(this.ctx) return;
+    try{ this.ctx = new (window.AudioContext||window.webkitAudioContext)(); }catch{}
+  },
+  beep(type="hit"){
+    if(!this.enabled || !this.ctx) return;
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.type = "square";
+    o.frequency.value = (type==="hit")? 220 : (type==="block"? 130 : (type==="bell"? 880 : 300));
+    g.gain.value = 0.08;
+    o.connect(g); g.connect(this.ctx.destination);
+    o.start();
+    setTimeout(()=>{o.stop()}, type==="bell"? 200 : 60);
+  }
+};
+
+/* -----------------------
+   Paramètres / sauvegarde
+----------------------- */
+const SETTINGS_KEY = "ringspark.settings.v1";
+const DefaultSettings = {
+  p1: "jiho",
+  p2: "ivan",
+  roundTime: 90,
+  roundsCount: 3,
+  aiDifficulty: 5,
+  dmgMult: 1.0,
+  stmCost: 1.0,
+  stmRegen: 1.0,
+  haptics: true,
+  sfx: true,
+  hints: true,
+  debug: false,
+  mirror: false, // southpaw toggle
+};
+let Settings = loadSettings();
+function loadSettings(){
+  try{
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if(!raw) return {...DefaultSettings};
+    return {...DefaultSettings, ...JSON.parse(raw)};
+  }catch(e){ return {...DefaultSettings}; }
+}
+function saveSettings(){
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(Settings));
+}
+
+/* -----------------------
+   Roster (extrait de la bible d’art)
+   Ajoute librement des persos ici
+----------------------- */
+const ROSTER = [
+  { id:"jiho", name:"Ji-Ho “The Comet”", country:"KR", colors:{primary:"#57d6ff", gloves:"#57d6ff", shorts:"#1e90ff"},
+    stance:"orthodox",
+    stats:{ pow:6, spd:9, grd:6, esq:8, end:6, men:7 },
+    special:{ id:"comet_step", label:"Comet Step", charge:100, effect:"dodge_cancel_triple_jab", bonusStun:250 } },
+  { id:"luna", name:"Luna “Sparkle”", country:"FR", colors:{primary:"#ff6aa0", gloves:"#ff6aa0", shorts:"#7b8cff"},
+    stance:"orthodox",
+    stats:{ pow:7, spd:7, grd:7, esq:7, end:7, men:7 },
+    special:{ id:"starburst", label:"Starburst Cross", charge:100, effect:"charged_cross_break", bonusStun:200 } },
+  { id:"sora", name:"Sora “Wind Cut”", country:"KR", colors:{primary:"#38e38e", gloves:"#38e38e", shorts:"#57d6ff"},
+    stance:"southpaw",
+    stats:{ pow:6, spd:9, grd:6, esq:9, end:6, men:7 },
+    special:{ id:"gale_step", label:"Gale Step", charge:100, effect:"dash_hook_safe", bonusStun:200 } },
+  { id:"ivan", name:"Ivan “Bear”", country:"RU", colors:{primary:"#ff9f9f", gloves:"#ff6a6a", shorts:"#ff9f9f"},
+    stance:"orthodox",
+    stats:{ pow:10, spd:5, grd:7, esq:5, end:8, men:6 },
+    special:{ id:"polar_hammer", label:"Polar Hammer", charge:100, effect:"overhand_big", bonusStun:300 } },
+];
+
+/* -----------------------
+   DOM & UI
+----------------------- */
+const dom = {
+  canvas: document.getElementById('game'),
+  status: document.getElementById('status'),
+  hpP1: document.querySelector('#hpP1 b'),
+  hpP2: document.querySelector('#hpP2 b'),
+  btnPause: document.getElementById('btnPause'),
+  btnGuard: document.getElementById('btnGuard'),
+  btnSpecial: document.getElementById('btnSpecial'),
+  overlayTutorial: document.getElementById('overlayTutorial'),
+  overlayPause: document.getElementById('overlayPause'),
+  btnStart: document.getElementById('btnStart'),
+  btnNoHints: document.getElementById('btnNoHints'),
+  btnResume: document.getElementById('btnResume'),
+  btnRestart: document.getElementById('btnRestart'),
+  selP1: document.getElementById('selP1'),
+  selP2: document.getElementById('selP2'),
+  btnSwap: document.getElementById('btnSwap'),
+  btnMirror: document.getElementById('btnMirror'),
+  roundTime: document.getElementById('roundTime'),
+  roundsCount: document.getElementById('roundsCount'),
+  aiDifficulty: document.getElementById('aiDifficulty'),
+  dmgMult: document.getElementById('dmgMult'),
+  stmCost: document.getElementById('stmCost'),
+  stmRegen: document.getElementById('stmRegen'),
+  roundTimeVal: document.getElementById('roundTimeVal'),
+  roundsCountVal: document.getElementById('roundsCountVal'),
+  aiDifficultyVal: document.getElementById('aiDifficultyVal'),
+  dmgMultVal: document.getElementById('dmgMultVal'),
+  stmCostVal: document.getElementById('stmCostVal'),
+  stmRegenVal: document.getElementById('stmRegenVal'),
+  btnApply: document.getElementById('btnApply'),
+  btnSoftReset: document.getElementById('btnSoftReset'),
+  toggleHaptics: document.getElementById('toggleHaptics'),
+  toggleSFX: document.getElementById('toggleSFX'),
+  toggleHints: document.getElementById('toggleHints'),
+  toggleDebug: document.getElementById('toggleDebug'),
+  debugFlag: document.getElementById('debugFlag'),
+};
+
+const ctx = dom.canvas.getContext('2d');
+let W = dom.canvas.width, H = dom.canvas.height;
+
+/* Adapter au viewport (retina) */
+function fitCanvas(){
+  const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+  const rect = dom.canvas.getBoundingClientRect();
+  dom.canvas.width = Math.round(rect.width * dpr);
+  dom.canvas.height = Math.round(rect.height * dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  W = dom.canvas.clientWidth;
+  H = dom.canvas.clientHeight;
+}
+addEventListener('resize', fitCanvas, {passive:true});
+
+/* -----------------------
+   Entrées (tactile & souris)
+----------------------- */
+const Input = {
+  touches: new Map(),
+  lastTapRight: 0,
+  pressStartRight: 0,
+  swipeStart: null,
+  gestureLock: false,
+  leftZone(x){ return x < W*0.42; },
+  rightZone(x){ return x > W*0.58; },
+};
+
+function onPointerDown(e){
+  const tlist = ('changedTouches' in e)? e.changedTouches : [e];
+  for(const t of tlist){
+    const x = t.clientX, y = t.clientY;
+    Input.touches.set(t.identifier || 0, {x,y, sx:x, sy:y, time:now(), side: Input.leftZone(x) ? 'L' : (Input.rightZone(x) ? 'R' : 'M') });
+    if(Input.rightZone(x)){
+      Input.pressStartRight = now();
+    }
+    if(Input.leftZone(x)){
+      // tap gauche toggle garde
+      Game.playerWants.guardToggle = true;
+    }
+  }
+  e.preventDefault();
+}
+function onPointerMove(e){
+  const tlist = ('changedTouches' in e)? e.changedTouches : [e];
+  for(const t of tlist){
+    const id = t.identifier || 0;
+    const obj = Input.touches.get(id); if(!obj) continue;
+    obj.x = t.clientX; obj.y = t.clientY;
+  }
+  e.preventDefault();
+}
+function onPointerUp(e){
+  const tlist = ('changedTouches' in e)? e.changedTouches : [e];
+  for(const t of tlist){
+    const id = t.identifier || 0;
+    const obj = Input.touches.get(id); if(!obj) continue;
+
+    const dx = obj.x - obj.sx, dy = obj.y - obj.sy;
+    const dt = now() - obj.time;
+
+    if(obj.side === 'R'){ // Attaques
+      const absx = Math.abs(dx), absy = Math.abs(dy);
+      const isSwipe = (absx>40 || absy>60) && dt<450;
+
+      if(isSwipe){
+        if(absy > absx && dy < -40){ // swipe up = uppercut
+          Game.playerWants.upper = true;
+        }else if(absx > absy){
+          if(dx < -40){ // droite -> gauche = hook
+            if(obj.sy < H*0.45) Game.playerWants.hookHead = true;
+            else Game.playerWants.hookBody = true;
+          }
+        }
+      }else{
+        // tap/press = jab/cross
+        if(dt > 300){ Game.playerWants.cross = true; }
+        else{ Game.playerWants.jab = true; }
+      }
+    }else if(obj.side === 'L'){ // Défense
+      const absx = Math.abs(dx), absy = Math.abs(dy);
+      const isSwipe = (absx>40) && dt<450;
+      if(isSwipe){
+        Game.playerWants.dodge = dx<0? 'L' : 'R';
+      }
+    }
+
+    Input.touches.delete(id);
+  }
+  e.preventDefault();
+}
+
+/* Boutons HUD */
+dom.btnGuard.addEventListener('click', ()=> Game.playerWants.guardToggle = true);
+dom.btnSpecial.addEventListener('click', ()=> Game.playerWants.special = true);
+dom.btnPause.addEventListener('click', ()=> togglePause(true));
+dom.btnResume.addEventListener('click', ()=> togglePause(false));
+dom.btnRestart.addEventListener('click', ()=> { togglePause(false); Game.resetRound(); });
+dom.btnStart.addEventListener('click', ()=> { dom.overlayTutorial.classList.remove('open'); Game.start(); });
+dom.btnNoHints.addEventListener('click', ()=> { Settings.hints=false; saveSettings(); document.getElementById('overlayTutorial').classList.remove('open'); });
+
+/* -----------------------
+   Sélection & Réglages UI
+----------------------- */
+function populateRosterSelects(){
+  dom.selP1.innerHTML = '';
+  dom.selP2.innerHTML = '';
+  for(const p of ROSTER){
+    const o1 = document.createElement('option'); o1.value = p.id; o1.textContent = p.name; dom.selP1.appendChild(o1);
+    const o2 = document.createElement('option'); o2.value = p.id; o2.textContent = p.name; dom.selP2.appendChild(o2);
+  }
+  dom.selP1.value = Settings.p1;
+  dom.selP2.value = Settings.p2;
+}
+populateRosterSelects();
+
+dom.btnSwap.addEventListener('click', ()=>{
+  const a = dom.selP1.value, b = dom.selP2.value;
+  dom.selP1.value = b; dom.selP2.value = a;
+});
+dom.btnMirror.addEventListener('click', ()=>{
+  Settings.mirror = !Settings.mirror; saveSettings();
+  toast('Postures inversées (southpaw)');
+});
+
+function bindRange(id, valId, key, fmt=(v)=>v){
+  const el = dom[id], out = dom[valId];
+  el.value = Settings[key];
+  out.textContent = fmt(Settings[key]);
+  el.addEventListener('input', ()=>{
+    out.textContent = fmt(el.value);
+  });
+}
+bindRange('roundTime','roundTimeVal','roundTime', v=>`${v}s`);
+bindRange('roundsCount','roundsCountVal','roundsCount', v=>`${v}`);
+bindRange('aiDifficulty','aiDifficultyVal','aiDifficulty', v=>`${v}/10`);
+bindRange('dmgMult','dmgMultVal','dmgMult', v=>Number(v).toFixed(2));
+bindRange('stmCost','stmCostVal','stmCost', v=>Number(v).toFixed(2));
+bindRange('stmRegen','stmRegenVal','stmRegen', v=>Number(v).toFixed(2));
+
+dom.btnApply.addEventListener('click', ()=>{
+  Settings.p1 = dom.selP1.value;
+  Settings.p2 = dom.selP2.value;
+  Settings.roundTime = Number(dom.roundTime.value);
+  Settings.roundsCount = Number(dom.roundsCount.value);
+  Settings.aiDifficulty = Number(dom.aiDifficulty.value);
+  Settings.dmgMult = Number(dom.dmgMult.value);
+  Settings.stmCost = Number(dom.stmCost.value);
+  Settings.stmRegen = Number(dom.stmRegen.value);
+  saveSettings();
+  toast('Réglages enregistrés. S’appliqueront au prochain round.');
+});
+
+dom.btnSoftReset.addEventListener('click', ()=>{
+  Object.assign(Settings, {...DefaultSettings});
+  saveSettings(); populateRosterSelects();
+  ['roundTime','roundsCount','aiDifficulty','dmgMult','stmCost','stmRegen'].forEach(id=>{
+    dom[id].value = DefaultSettings[id];
+  });
+  dom.roundTimeVal.textContent = `${DefaultSettings.roundTime}s`;
+  dom.roundsCountVal.textContent = `${DefaultSettings.roundsCount}`;
+  dom.aiDifficultyVal.textContent = `${DefaultSettings.aiDifficulty}/10`;
+  dom.dmgMultVal.textContent = DefaultSettings.dmgMult.toFixed(2);
+  dom.stmCostVal.textContent = DefaultSettings.stmCost.toFixed(2);
+  dom.stmRegenVal.textContent = DefaultSettings.stmRegen.toFixed(2);
+  dom.toggleHaptics.checked = DefaultSettings.haptics;
+  dom.toggleSFX.checked = DefaultSettings.sfx;
+  dom.toggleHints.checked = DefaultSettings.hints;
+  dom.toggleDebug.checked = DefaultSettings.debug;
+  toast('Réglages par défaut rétablis.');
+});
+
+dom.toggleHaptics.checked = Settings.haptics;
+dom.toggleSFX.checked = Settings.sfx;
+dom.toggleHints.checked = Settings.hints;
+dom.toggleDebug.checked = Settings.debug;
+dom.toggleHaptics.addEventListener('change', e=>{ Settings.haptics = e.target.checked; Haptics.enabled = Settings.haptics; saveSettings(); });
+dom.toggleSFX.addEventListener('change', e=>{ Settings.sfx = e.target.checked; SFX.enabled = Settings.sfx; if(SFX.enabled) SFX.init(); saveSettings(); });
+dom.toggleHints.addEventListener('change', e=>{ Settings.hints = e.target.checked; saveSettings(); });
+dom.toggleDebug.addEventListener('change', e=>{ Settings.debug = e.target.checked; dom.debugFlag.hidden = !Settings.debug; saveSettings(); });
+
+/* -----------------------
+   Noyau du jeu
+----------------------- */
+const Game = {
+  started:false,
+  paused:false,
+  ring:{ x:0, y:0, w:0, h:0, left:0, right:0, floor:0 },
+  players:[],
+  timer:0, round:1, bestOf: Settings.roundsCount, roundTime: Settings.roundTime,
+  winner:null, score:[0,0],
+  messages:[],
+  playerWants:{ jab:false, cross:false, hookHead:false, hookBody:false, upper:false, dodge:null, guardToggle:false, special:false },
+
+  start(){
+    this.started = true;
+    SFX.init(); Haptics.enabled = Settings.haptics; SFX.enabled = Settings.sfx;
+    this.bestOf = Settings.roundsCount;
+    this.roundTime = Settings.roundTime;
+    this.score = [0,0];
+    this.round = 1;
+    this.setupStage();
+    this.spawnPlayers();
+    this.resetRound();
+    if(Settings.hints){ dom.overlayTutorial.classList.add('open'); } else { dom.overlayTutorial.classList.remove('open'); }
+  },
+  setupStage(){
+    const pad = 18;
+    this.ring.x = pad; this.ring.w = W - pad*2;
+    this.ring.h = Math.min(H - pad*2, W*0.7);
+    this.ring.y = (H - this.ring.h)/2;
+    this.ring.left = this.ring.x + 30;
+    this.ring.right = this.ring.x + this.ring.w - 30;
+    this.ring.floor = this.ring.y + this.ring.h*0.82;
+  },
+  spawnPlayers(){
+    this.players = [];
+    const p1 = createFighter(getChar(Settings.p1), true);
+    const p2 = createFighter(getChar(Settings.p2), false);
+    if(Settings.mirror) p1.stance = (p1.stance==='orthodox'?'southpaw':'orthodox');
+    this.players.push(p1,p2);
+  },
+  applyWants(){
+    const p1 = this.players[0];
+    if(this.playerWants.guardToggle) { p1.toggleGuard(); }
+    if(this.playerWants.dodge) { p1.dodge(this.playerWants.dodge); }
+    if(this.playerWants.jab) { p1.punch('jab'); }
+    if(this.playerWants.cross) { p1.punch('cross'); }
+    if(this.playerWants.hookHead) { p1.punch('hook_h'); }
+    if(this.playerWants.hookBody) { p1.punch('hook_b'); }
+    if(this.playerWants.upper) { p1.punch('upper'); }
+    if(this.playerWants.special) { p1.specialMove(); }
+    // reset wants
+    this.playerWants = { jab:false, cross:false, hookHead:false, hookBody:false, upper:false, dodge:null, guardToggle:false, special:false };
+  },
+  resetRound(){
+    this.timer = this.roundTime;
+    this.winner = null;
+    const [p1,p2] = this.players;
+    p1.resetForRound(true);
+    p2.resetForRound(false);
+    p1.x = this.ring.x + this.ring.w*0.33;
+    p2.x = this.ring.x + this.ring.w*0.67;
+    p1.face = 1; p2.face = -1;
+    p1.enemy = p2; p2.enemy = p1;
+    dom.status.textContent = `Round ${this.round}/${this.bestOf} — Fight!`;
+    SFX.beep("bell");
+  },
+  endRound(winnerIdx){
+    if(winnerIdx!==null){
+      this.score[winnerIdx] += 1;
+      dom.status.textContent = `Round ${this.round} terminé — ${winnerIdx===0?'P1':'P2'} gagne`;
+    } else {
+      dom.status.textContent = `Round ${this.round} terminé — Égalité`;
+    }
+    this.round++;
+    if(this.score[0] > (this.bestOf/2)|0 || this.score[1] > (this.bestOf/2)|0 || this.round>this.bestOf){
+      // Fin de match
+      const winner = this.score[0]===this.score[1]? 'Égalité' : (this.score[0]>this.score[1]?'P1':'P2');
+      toast(`🏆 Match terminé — ${winner}`);
+      this.round = 1; this.score=[0,0];
+    }
+    this.resetRound();
+  },
+  update(dt){
+    if(!this.started || this.paused) return;
+    // Timer
+    this.timer -= dt;
+    if(this.timer<=0){
+      const w = this.players[0].hp===this.players[1].hp? null : (this.players[0].hp>this.players[1].hp? 0:1);
+      this.endRound(w);
+      return;
+    }
+
+    // Appliquer commandes joueur
+    this.applyWants();
+
+    // Update fighters
+    for(const f of this.players){
+      f.update(dt);
+    }
+    // IA (P2)
+    aiControl(this.players[1], dt);
+
+    // Gestion KO
+    const koIdx = this.players.findIndex(f=>f.hp<=0);
+    if(koIdx!==-1){
+      const w = koIdx===0? 1:0;
+      toast(`💥 KO — ${w===0?'P1':'P2'} remporte le round`);
+      this.endRound(w);
+    }
+
+    // Mettre à jour jauges HUD
+    dom.hpP1.style.width = `${100*clamp(this.players[0].hp/100,0,1)}%`;
+    dom.hpP2.style.width = `${100*clamp(this.players[1].hp/100,0,1)}%`;
+  },
+  draw(){
+    // Ring fond
+    drawArena(this.ring);
+    // Fighters
+    for(const f of this.players) drawFighter(f);
+    // Timer & score
+    drawTopInfo(this);
+    // Debug
+    if(Settings.debug) drawDebug(this);
+  }
+};
+
+function getChar(id){ return ROSTER.find(p=>p.id===id) || ROSTER[0]; }
+
+/* -----------------------
+   Fighter
+----------------------- */
+function createFighter(base, isP1){
+  return {
+    id: base.id, name: base.name, stance: base.stance,
+    colors: base.colors, stats: {...base.stats}, special: {...base.special},
+    isP1, enemy:null,
+    x:0, y:0, face: isP1? 1 : -1,
+    hp:100, stamina:100, spc:0,
+    state:"idle", stateT:0,
+    guard:false, dodgeDir:0, invuln:0, stun:0,
+    cooldown:0, lastHitTime:0,
+    wants:{},
+
+    resetForRound(full){
+      this.hp = 100; this.stamina = 100; this.spc = 0;
+      this.state = "idle"; this.stateT = 0; this.guard=false; this.invuln=0; this.stun=0; this.cooldown=0;
+    },
+    toggleGuard(){
+      this.guard = !this.guard;
+      Haptics.ping(10);
+    },
+    canAct(){ return this.stun<=0 && this.cooldown<=0; },
+    spend(cost){
+      this.stamina = Math.max(0, this.stamina - cost*Settings.stmCost);
+    },
+    regen(dt){
+      const r = (0.8 + this.stats.end*0.04) * Settings.stmRegen;
+      if(this.guard) this.stamina += r*0.5*dt; else this.stamina += r*dt;
+      this.stamina = Math.min(100, this.stamina);
+      if(this.spc<100) this.spc = Math.min(100, this.spc + 6*dt);
+    },
+    punch(type){
+      if(!this.canAct()) return;
+      const costs = { jab:6, cross:9, hook_h:10, hook_b:10, upper:12 };
+      const speeds = { jab:0.20, cross:0.32, hook_h:0.38, hook_b:0.38, upper:0.42 }; // secondes d’anim
+      const reach = { jab:70, cross:74, hook_h:60, hook_b:60, upper:56 };
+      const powerB = { jab:8, cross:14, hook_h:16, hook_b:12, upper:18 };
+
+      const cost = costs[type] * (1.0 - this.stats.spd*0.01);
+      if(this.stamina<cost+2) return; // trop fatigué
+      this.spend(cost);
+
+      this.state = type; this.stateT = speeds[type];
+      this.cooldown = speeds[type]*0.65;
+      // tentative de touche
+      const inRange = Math.abs(this.enemy.x - this.x) < (reach[type] + 24);
+      const guardBonus = this.enemy.guard ? (0.45 + this.enemy.stats.grd*0.02) : 0;
+      const dodgeSafe = this.enemy.invuln>0;
+
+      // précision approximée
+      const baseAcc = 0.82 + (this.stats.spd - 7)*0.01;
+      const tiredPenalty = (this.stamina<25)? 0.1 : 0;
+      const accuracy = clamp(baseAcc - tiredPenalty, 0.6, 0.95);
+
+      if(inRange && Math.random() < accuracy && !dodgeSafe){
+        let dmg = powerB[type] * (1 + this.stats.pow*0.05) * Settings.dmgMult;
+        let hitType = "hit";
+        let stunAdd = 200 + this.stats.pow*10;
+
+        // Hook corps draine stamina
+        if(type==='hook_b') { this.enemy.stamina = Math.max(0, this.enemy.stamina - 12); }
+
+        // Critique léger si timing après esquive ennemie
+        if(now() - this.enemy.lastDodgeAt < 300) { dmg *= 1.2; stunAdd += 120; }
+
+        // Réduction par la garde
+        if(this.enemy.guard){
+          dmg *= (1 - clamp(0.35 + this.enemy.stats.grd*0.02,0,0.6));
+          hitType = "block";
+          stunAdd *= 0.4;
+        }
+
+        // Appliquer
+        this.enemy.takeHit(dmg, stunAdd);
+        this.spc = Math.min(100, this.spc + 8);
+        SFX.beep(hitType);
+        Haptics.ping(12);
+      } else {
+        // whiff -> stamina punie un peu
+        this.spend(3);
+      }
+    },
+    lastDodgeAt: -9999,
+    dodge(dir){ // 'L' or 'R'
+      if(!this.canAct()) return;
+      const cost = 10 * (1.0 - this.stats.esq*0.02);
+      if(this.stamina<cost+3) return;
+      this.spend(cost);
+      this.invuln = 0.18 + this.stats.esq*0.01;
+      this.state = "dodge"; this.stateT = 0.22;
+      this.lastDodgeAt = now();
+      // petit déplacement
+      const step = 24 * (dir==='L'?-1:1) * (this.isP1?1:-1); // inverser selon face
+      this.x = clamp(this.x + step, Game.ring.left, Game.ring.right);
+    },
+    takeHit(dmg, stunMs){
+      this.hp = Math.max(0, this.hp - dmg);
+      this.stun = Math.max(this.stun, stunMs/1000 * (1.0 - this.stats.men*0.03));
+      this.lastHitTime = now();
+    },
+    specialMove(){
+      if(this.spc<100 || !this.canAct()) return;
+      // Effets spéciaux simplifiés
+      const eff = this.special.effect;
+      if(eff==="dodge_cancel_triple_jab"){
+        this.invuln = 0.25; this.state="special"; this.stateT=0.35;
+        this.punch('jab'); setTimeout(()=>this.punch('jab'), 120); setTimeout(()=>this.punch('jab'), 220);
+      }else if(eff==="charged_cross_break"){
+        this.state="special"; this.stateT=0.4;
+        setTimeout(()=>this.punch('cross'), 120);
+      }else if(eff==="dash_hook_safe"){
+        this.state="special"; this.stateT=0.3;
+        const step = 30 * (this.isP1?1:-1);
+        this.x = clamp(this.x + step, Game.ring.left, Game.ring.right);
+        setTimeout(()=>this.punch('hook_h'), 100);
+      }else if(eff==="overhand_big"){
+        this.state="special"; this.stateT=0.5;
+        setTimeout(()=>{ // très puissant
+          if(Math.abs(this.enemy.x - this.x) < 78 && this.enemy.invuln<=0){
+            let dmg = 26 * (1 + this.stats.pow*0.06) * Settings.dmgMult;
+            if(this.enemy.guard) dmg *= 0.7;
+            this.enemy.takeHit(dmg, 0.5*1000);
+            SFX.beep("hit"); Haptics.ping(20);
+          }
+        }, 180);
+      }
+      this.spc = 0;
+    },
+    update(dt){
+      // vers l’adversaire
+      const dir = Math.sign(this.enemy.x - this.x);
+      // recul léger si trop collés
+      if(Math.abs(this.enemy.x - this.x) < 45){
+        this.x -= dir*0.2;
+      }
+      // clamp ring
+      this.x = clamp(this.x, Game.ring.left, Game.ring.right);
+
+      // timers
+      this.stateT = Math.max(0, this.stateT - dt);
+      this.cooldown = Math.max(0, this.cooldown - dt);
+      this.invuln = Math.max(0, this.invuln - dt);
+      this.stun = Math.max(0, this.stun - dt);
+      if(this.stateT<=0 && this.stun<=0){ this.state = this.guard? "guard":"idle"; }
+
+      // regen
+      this.regen(dt);
+    }
+  };
+}
+
+/* -----------------------
+   IA très compacte
+----------------------- */
+function aiControl(f, dt){
+  // Difficulté influ sur fréquence d'action / précision apx.
+  const diff = Settings.aiDifficulty;
+  if(f.stun>0) return;
+
+  const dist = Math.abs(f.enemy.x - f.x);
+  const inRange = dist < 85;
+
+  // se rapprocher / s’éloigner un peu
+  if(dist>110){
+    f.x += (f.enemy.x>f.x? 0.5 : -0.5);
+  }else if(dist<60){
+    f.x += (f.enemy.x>f.x? -0.4 : 0.4);
+  }
+
+  // toggler garde contextuelle
+  f.guard = (Math.random() < (0.3 + diff*0.03));
+
+  // esquive opportuniste après hit du joueur
+  if(now() - f.enemy.lastHitTime < 220 && Math.random()<0.25+diff*0.03){
+    f.dodge(Math.random()<0.5?'L':'R');
+    return;
+  }
+
+  // attaques
+  if(f.canAct()){
+    const p = Math.random();
+    if(inRange){
+      if(p < 0.40){ f.punch('jab'); }
+      else if(p < 0.55){ f.punch('cross'); }
+      else if(p < 0.72){ f.punch('hook_h'); }
+      else if(p < 0.86){ f.punch('hook_b'); }
+      else { f.punch('upper'); }
+    }else{
+      if(p < 0.25) f.punch('jab');
+    }
+    // spéciale quand prête (moins fréquent si diff basse)
+    if(f.spc>=100 && Math.random() < (0.15 + diff*0.03)){
+      f.specialMove();
+    }
+  }
+}
+
+/* -----------------------
+   Rendu Canvas
+----------------------- */
+function drawArena(r){
+  const g = ctx;
+  // sol
+  const grad = g.createLinearGradient(0, r.y, 0, r.y+r.h);
+  grad.addColorStop(0, '#101633');
+  grad.addColorStop(1, '#0c1126');
+  g.fillStyle = grad;
+  g.fillRect(r.x, r.y, r.w, r.h);
+
+  // cordes (style South Park minimal)
+  g.strokeStyle = '#7b8cff';
+  g.lineWidth = 6;
+  for(let i=0;i<3;i++){
+    const yy = r.y + r.h*0.25 + i* r.h*0.18;
+    g.beginPath();
+    g.moveTo(r.x+20, yy);
+    g.lineTo(r.x+r.w-20, yy);
+    g.stroke();
+  }
+
+  // foule
+  for(let i=0;i<80;i++){
+    const px = r.x + 10 + (i* (r.w-20)/80);
+    const py = r.y + rnd(6, 18);
+    const alpha = rnd(0.05, 0.18);
+    g.fillStyle = `rgba(255,255,255,${alpha})`;
+    g.fillRect(px, py, rnd(2,4), rnd(4,10));
+  }
+}
+
+function drawFighter(f){
+  const g = ctx;
+  const yBase = Game.ring.floor;
+  const scale = 1;
+  const face = f.isP1? 1 : -1;
+
+  const bodyX = f.x, bodyY = yBase - 80;
+  // Ombre
+  g.fillStyle = 'rgba(0,0,0,0.4)';
+  g.beginPath();
+  g.ellipse(bodyX, yBase+2, 32, 8, 0, 0, Math.PI*2);
+  g.fill();
+
+  // Corps (chibi) — style South Park simplifié + couleurs manga
+  // Torse
+  g.fillStyle = f.colors.shorts || '#2a2f45';
+  g.fillRect(bodyX-18, bodyY, 36, 34);
+
+  // Tête grande
+  g.fillStyle = '#f2d4c8';
+  g.beginPath();
+  g.arc(bodyX, bodyY-26, 26, 0, Math.PI*2);
+  g.fill();
+
+  // Casque/cheveux stylisés
+  g.fillStyle = f.colors.primary || '#57d6ff';
+  g.beginPath();
+  g.arc(bodyX, bodyY-34, 26, Math.PI*1, Math.PI*2);
+  g.fill();
+
+  // Yeux expressifs
+  const eyeOff = 8;
+  g.fillStyle = '#111';
+  g.fillRect(bodyX - (eyeOff+3), bodyY-30, 6, 6);
+  g.fillRect(bodyX + (eyeOff-3), bodyY-30, 6, 6);
+
+  // Bras + gants
+  const t = f.state;
+  // bras avant (selon face)
+  const dir = f.enemy.x >= f.x ? 1 : -1;
+  const armReach = (t.includes('hook')||t==='upper'||t==='cross')? 30 : 22;
+  const fx = bodyX + dir * armReach;
+  const fy = bodyY - 8 + (t==='upper'?-8:0);
+
+  // bras arrière compact
+  g.strokeStyle = '#f2d4c870'; g.lineWidth = 6;
+  g.beginPath();
+  g.moveTo(bodyX - dir*10, bodyY-6);
+  g.lineTo(bodyX - dir*6, bodyY+6);
+  g.stroke();
+
+  // Avant-bras + gant (coups)
+  g.strokeStyle = '#f2d4c8'; g.lineWidth=7;
+  g.beginPath();
+  g.moveTo(bodyX + dir*4, bodyY-6);
+  g.lineTo(fx, fy);
+  g.stroke();
+
+  // Gant
+  g.fillStyle = f.colors.gloves || '#ff6a6a';
+  g.beginPath();
+  g.arc(fx, fy, 10, 0, Math.PI*2);
+  g.fill();
+
+  // Jauge spéciale halo
+  if(f.spc>=100){
+    g.strokeStyle = 'rgba(255,255,255,0.45)';
+    g.lineWidth = 2;
+    g.beginPath();
+    g.arc(bodyX, bodyY-26, 30, 0, Math.PI*2);
+    g.stroke();
+  }
+
+  // Effets: invuln / stun
+  if(f.invuln>0){
+    g.strokeStyle = 'rgba(87,214,255,0.7)';
+    g.lineWidth = 2;
+    g.strokeRect(bodyX-22, bodyY-52, 44, 66);
+  }
+  if(f.stun>0){
+    g.fillStyle = 'rgba(255,213,99,0.25)';
+    g.fillRect(bodyX-28, bodyY-56, 56, 76);
+  }
+
+  // Debug hitbox
+  if(Settings.debug){
+    g.strokeStyle = 'rgba(255,255,255,0.2)';
+    g.strokeRect(bodyX-18, bodyY-60, 36, 94);
+  }
+}
+
+function drawTopInfo(game){
+  const g = ctx;
+  g.save();
+  g.fillStyle = 'rgba(0,0,0,0.35)';
+  g.fillRect(W*0.42, 8, W*0.16, 24);
+  g.fillStyle = '#fff';
+  g.font = 'bold 14px system-ui, sans-serif';
+  g.textAlign = 'center';
+  g.fillText(`Round ${game.round}/${game.bestOf} — ${Math.ceil(game.timer)}s`, W*0.5, 24);
+  g.restore();
+
+  // Hints zones
+  if(Settings.hints){
+    g.save();
+    g.globalAlpha = 0.06;
+    g.fillStyle = '#00ff99';
+    g.fillRect(0, 0, W*0.42, H);
+    g.fillStyle = '#00aaff';
+    g.fillRect(W*0.58, 0, W*0.42, H);
+    g.restore();
+  }
+}
+
+function drawDebug(game){
+  const g = ctx;
+  g.save();
+  g.fillStyle = 'rgba(255,255,255,0.08)';
+  g.fillRect(8, H-90, 220, 82);
+  g.fillStyle = '#cbd5e1';
+  g.font = '12px monospace';
+  const [a,b]=game.players;
+  const lines = [
+    `P1 HP:${a.hp.toFixed(1)} ST:${a.stamina.toFixed(1)} SPC:${a.spc|0} st:${a.state} inv:${a.invuln.toFixed(2)} stun:${a.stun.toFixed(2)}`,
+    `P2 HP:${b.hp.toFixed(1)} ST:${b.stamina.toFixed(1)} SPC:${b.spc|0} st:${b.state} inv:${b.invuln.toFixed(2)} stun:${b.stun.toFixed(2)}`,
+    `Timer:${game.timer.toFixed(1)} Score ${game.score[0]} - ${game.score[1]}`,
+  ];
+  let y=H-70;
+  for(const L of lines){ g.fillText(L, 14, y); y+=16; }
+  g.restore();
+}
+
+/* -----------------------
+   Boucle de jeu
+----------------------- */
+let last = performance.now();
+function frame(ts){
+  fitCanvas();
+  const dt = Math.min(0.05, (ts - last)/1000); last = ts;
+  Game.update(dt);
+  Game.draw();
+  requestAnimationFrame(frame);
+}
+
+/* -----------------------
+   Overlays & Utils
+----------------------- */
+function togglePause(force=true){
+  Game.paused = force;
+  dom.overlayPause.classList.toggle('open', Game.paused);
+}
+function toast(msg){
+  dom.status.textContent = msg;
+}
+
+/* -----------------------
+   Initialisation
+----------------------- */
+function boot(){
+  fitCanvas();
+  // pointer events
+  const target = dom.canvas;
+  target.addEventListener('touchstart', onPointerDown, {passive:false});
+  target.addEventListener('touchmove', onPointerMove, {passive:false});
+  target.addEventListener('touchend', onPointerUp, {passive:false});
+  target.addEventListener('mousedown', onPointerDown, {passive:false});
+  target.addEventListener('mousemove', onPointerMove, {passive:false});
+  target.addEventListener('mouseup', onPointerUp, {passive:false});
+
+  // Démarrer direct (tutoriel visible si activé)
+  if(Settings.hints){ dom.overlayTutorial.classList.add('open'); }
+  Game.start();
+  requestAnimationFrame(frame);
+}
+
+window.addEventListener('load', boot);
+</script>
+</body>
+</html>
