@@ -1,0 +1,69 @@
+:root {
+  color-scheme: light dark;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #0d1117;
+  color: #e6edf3;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: #161b22;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+h1, h2 {
+  margin: 0;
+}
+
+main {
+  padding: 2rem;
+  display: grid;
+  gap: 2rem;
+}
+
+.card {
+  background: #161b22;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 8px 24px rgba(1, 4, 9, 0.4);
+}
+
+.card h3 {
+  margin-top: 0;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+button {
+  border: none;
+  border-radius: 999px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: #1f6feb;
+  color: #fff;
+}
+
+button[data-action="deny"] {
+  background: #f0883e;
+}
+
+button[data-action="ban"] {
+  background: #d1242f;
+}
+
+button:focus-visible {
+  outline: 3px solid #2f81f7;
+  outline-offset: 2px;
+}

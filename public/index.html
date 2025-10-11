@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Face Auth Control Center</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <div>
+      <h1>Face Auth · Privacy First</h1>
+      <p>Enrich authentication with cancellable biometrics, adaptive liveness, and DSAR controls.</p>
+    </div>
+    <nav>
+      <a href="#face">Face SDK</a>
+      <a href="#protected">Protected actions</a>
+      <a href="#dsar">Consent &amp; DSAR</a>
+      <a href="#voice">Voice sandbox</a>
+      <a href="/admin" target="_blank" rel="noopener">Moderation</a>
+    </nav>
+  </header>
+
+  <section id="consent-banner" class="banner" hidden>
+    <div>
+      <h2>Consent required</h2>
+      <p>We use on-device embeddings transformed with cancellable biohashes. Enable analytics separately.</p>
+    </div>
+    <div class="actions">
+      <label><input type="checkbox" id="consent-analytics" /> Analytics</label>
+      <button id="consent-accept">Accept v<span id="consent-version"></span></button>
+    </div>
+  </section>
+
+  <main>
+    <section id="face" class="card">
+      <h2>SDK playground</h2>
+      <p>Provide embeddings (comma separated float32) to simulate the WASM SDK flows.</p>
+      <form id="enroll-form">
+        <label>User ID <input name="userId" required /></label>
+        <label>Tenant <input name="tenantId" value="demo" /></label>
+        <label>Region <input name="region" value="eu-west" /></label>
+        <label>User seed <input name="userSeed" required /></label>
+        <label>Embedding
+          <textarea name="embedding" rows="4" placeholder="512 comma separated floats"></textarea>
+        </label>
+        <div class="row">
+          <label><input type="checkbox" name="identificationOptIn" /> Allow 1:N identify</label>
+          <label><input type="checkbox" name="analyticsOptIn" /> Analytics opt-in</label>
+        </div>
+        <button type="submit">Enroll</button>
+      </form>
+      <div class="status" id="enroll-status" aria-live="polite"></div>
+
+      <form id="verify-form">
+        <h3>Verify</h3>
+        <label>User ID <input name="userId" required /></label>
+        <label>User seed <input name="userSeed" required /></label>
+        <label>Embedding <textarea name="embedding" rows="4"></textarea></label>
+        <div class="row">
+          <label><input type="checkbox" name="blink" /> Blink</label>
+          <label><input type="checkbox" name="yaw" /> Head yaw</label>
+        </div>
+        <button type="submit">Verify</button>
+      </form>
+      <div class="status" id="verify-status" aria-live="polite"></div>
+
+      <form id="identify-form">
+        <h3>Identify</h3>
+        <label>Tenant <input name="tenantId" value="demo" /></label>
+        <label>Region <input name="region" value="eu-west" /></label>
+        <label>User seed <input name="userSeed" required /></label>
+        <label>Embedding <textarea name="embedding" rows="4"></textarea></label>
+        <button type="submit">Search</button>
+      </form>
+      <div class="status" id="identify-status" aria-live="polite"></div>
+    </section>
+
+    <section id="protected" class="card">
+      <h2>Adaptive protected actions</h2>
+      <p>Demonstrates server-enforced rechecks on sensitive operations.</p>
+      <div class="row">
+        <label>User ID <input id="protected-user" /></label>
+        <label>Challenge ID <input id="protected-challenge" placeholder="auto" /></label>
+      </div>
+      <div class="actions">
+        <button data-action="send-message">Send message</button>
+        <button data-action="mass-like">Mass-like</button>
+        <button data-action="login">Login (new device)</button>
+      </div>
+      <div class="status" id="protected-status" aria-live="polite"></div>
+    </section>
+
+    <section id="dsar" class="card">
+      <h2>Consent &amp; DSAR desk</h2>
+      <div class="row">
+        <label>User ID <input id="dsar-user" /></label>
+      </div>
+      <div class="actions">
+        <button id="dsar-status">Status</button>
+        <button id="dsar-export">Export</button>
+        <button id="dsar-erase" class="danger">Erase</button>
+      </div>
+      <pre id="dsar-output" class="status" aria-live="polite"></pre>
+    </section>
+
+    <section id="voice" class="card">
+      <h2>Voice sandbox (legacy)</h2>
+      <p>Existing voice cloning endpoints remain for backwards compatibility.</p>
+      <a class="button" href="#video">Open legacy UI</a>
+    </section>
+  </main>
+
+  <div id="liveness-modal" role="dialog" aria-modal="true" aria-labelledby="liveness-title" hidden>
+    <div class="modal">
+      <h2 id="liveness-title">Active challenge</h2>
+      <p id="liveness-instructions"></p>
+      <div class="row">
+        <label><input type="checkbox" id="modal-blink" /> Blink</label>
+        <label><input type="checkbox" id="modal-yaw" /> Head yaw</label>
+      </div>
+      <div class="actions">
+        <button id="modal-submit">Submit</button>
+        <button id="modal-cancel" class="ghost">Cancel</button>
+      </div>
+      <div id="modal-status" class="status" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <template id="toast-template">
+    <div class="toast" role="status" aria-live="polite"></div>
+  </template>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
