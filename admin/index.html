@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Face Auth Moderation Console</title>
+  <link rel="stylesheet" href="/admin/styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Moderation Queue</h1>
+    <nav>
+      <button id="refresh">Refresh</button>
+    </nav>
+  </header>
+  <main>
+    <section>
+      <h2>Risk Alerts</h2>
+      <div id="alerts"></div>
+    </section>
+    <section>
+      <h2>Audit Trail</h2>
+      <div id="audits"></div>
+    </section>
+  </main>
+  <template id="alert-card">
+    <div class="card">
+      <h3></h3>
+      <p class="reason"></p>
+      <div class="actions">
+        <button data-action="approve">Approve</button>
+        <button data-action="deny">Deny</button>
+        <button data-action="ban">Ban</button>
+      </div>
+    </div>
+  </template>
+  <script type="module" src="/admin/app.js"></script>
+</body>
+</html>
