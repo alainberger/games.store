@@ -1,14 +1,18 @@
-# HyperVoice — Site complet (PWA + Node)
-Fonctions :
-- **Vidéo → clone** : upload vidéo, extraction audio (ffmpeg-static), création d’un profil voix (consentement requis).
-- **Audio → clone** : enregistrement ou import audio → profil.
-- **Bibliothèque** : liste, écoute, suppression de voix.
-- **TTS démo locale** : via Web Speech (navigateur). Pour un TTS cloné serveur, branche un moteur externe.
-- **Conversion (pitch)** : serveur (ffmpeg) pour transposition simple.
-- **PWA** : installable, offline UI.
+# SurvivalHub
 
-## Démarrage
+## Run
+
 ```bash
-npm i
-npm run dev
-# puis http://localhost:5173
+npm install
+npm start
+```
+
+Open http://localhost:3000
+
+## Features
+- Auth register/login + JWT + profile persistence
+- Steam-like responsive UI + hamburger menu
+- Lobby, automatic matchmaking, in-game chat via Socket.io
+- Multiplayer survival game (open world, loot, zombies, combat, death/respawn)
+- 3 extra games: Mini Survival, Battle Royale Lite, Arcade Horde
+- Node.js + Express backend with REST API and WebSocket realtime sync
