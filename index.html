@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SurvivalHub</title>
+    <link rel="stylesheet" href="/style.css" />
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">SurvivalHub</div>
+      <button id="hamburger" class="hamburger">☰</button>
+      <nav id="menu" class="menu">
+        <button data-page="home">Accueil</button>
+        <button data-page="profile">Profil</button>
+        <button data-page="lobby">Lobby</button>
+        <button data-page="survival">DayZero</button>
+        <button data-page="mini">Mini Survival</button>
+        <button data-page="battle">Battle Lite</button>
+        <button data-page="arcade">Arcade Horde</button>
+        <button id="logoutBtn">Déconnexion</button>
+      </nav>
+    </header>
+
+    <main id="app">
+      <section id="authPage" class="page active">
+        <div class="card auth-card">
+          <h1>Connexion / Inscription</h1>
+          <input id="email" placeholder="Email" />
+          <input id="password" type="password" placeholder="Mot de passe" />
+          <input id="pseudo" placeholder="Pseudo (inscription)" />
+          <div class="row">
+            <button id="loginBtn" class="primary">Connexion</button>
+            <button id="registerBtn">Inscription</button>
+          </div>
+          <p id="authMsg"></p>
+        </div>
+      </section>
+
+      <section id="homePage" class="page">
+        <h2>Jeux disponibles</h2>
+        <div id="gamesGrid" class="games-grid"></div>
+      </section>
+
+      <section id="profilePage" class="page">
+        <div class="card profile">
+          <img id="avatar" alt="avatar" />
+          <input id="pseudoInput" />
+          <button id="saveProfile">Sauvegarder profil</button>
+          <div id="stats"></div>
+        </div>
+      </section>
+
+      <section id="lobbyPage" class="page">
+        <div class="split">
+          <div class="card">
+            <h3>Lobby & Matchmaking</h3>
+            <input id="lobbyName" placeholder="Nom du lobby" />
+            <select id="lobbyGame">
+              <option value="dayzero">DayZero</option>
+              <option value="battle-lite">Battle Lite</option>
+            </select>
+            <div class="row">
+              <button id="createLobby">Créer</button>
+              <button id="autoMatch" class="primary">Matchmaking auto</button>
+            </div>
+            <div id="lobbyList"></div>
+          </div>
+          <div class="card">
+            <h3>Chat lobby</h3>
+            <div id="chatLog" class="chat-log"></div>
+            <div class="row">
+              <input id="chatInput" placeholder="Message" />
+              <button id="sendChat">Envoyer</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="survivalPage" class="page">
+        <canvas id="gameCanvas" width="960" height="540"></canvas>
+        <div id="hud" class="hud"></div>
+      </section>
+
+      <section id="miniPage" class="page">
+        <canvas id="miniCanvas" width="960" height="540"></canvas>
+        <div id="miniHud" class="hud"></div>
+      </section>
+
+      <section id="battlePage" class="page">
+        <canvas id="battleCanvas" width="960" height="540"></canvas>
+        <div id="battleHud" class="hud"></div>
+      </section>
+
+      <section id="arcadePage" class="page">
+        <canvas id="arcadeCanvas" width="960" height="540"></canvas>
+        <div id="arcadeHud" class="hud"></div>
+      </section>
+    </main>
+
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
