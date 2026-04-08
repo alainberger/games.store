@@ -1,104 +1,430 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SurvivalHub</title>
-    <link rel="stylesheet" href="/style.css" />
-    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
-  </head>
-  <body>
-    <header class="topbar">
-      <div class="brand">SurvivalHub</div>
-      <button id="hamburger" class="hamburger">☰</button>
-      <nav id="menu" class="menu">
-        <button data-page="home">Accueil</button>
-        <button data-page="profile">Profil</button>
-        <button data-page="lobby">Lobby</button>
-        <button data-page="survival">DayZero</button>
-        <button data-page="mini">Mini Survival</button>
-        <button data-page="battle">Battle Lite</button>
-        <button data-page="arcade">Arcade Horde</button>
-        <button id="logoutBtn">Déconnexion</button>
-      </nav>
-    </header>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SurvivalHub — Plateforme Survival Multijoueur</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
 
-    <main id="app">
-      <section id="authPage" class="page active">
-        <div class="card auth-card">
-          <h1>Connexion / Inscription</h1>
-          <input id="email" placeholder="Email" />
-          <input id="password" type="password" placeholder="Mot de passe" />
-          <input id="pseudo" placeholder="Pseudo (inscription)" />
-          <div class="row">
-            <button id="loginBtn" class="primary">Connexion</button>
-            <button id="registerBtn">Inscription</button>
+<!-- LOADING SCREEN -->
+<div id="loadingScreen">
+  <div class="ls-inner">
+    <div class="ls-logo">☣</div>
+    <div class="ls-title">SURVIVAL<em>HUB</em></div>
+    <div class="ls-bar"><div id="lsProgress"></div></div>
+    <div class="ls-status" id="lsStatus">Initialisation...</div>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div id="toastContainer"></div>
+
+<!-- TOPBAR -->
+<header id="topbar">
+  <div class="tb-left">
+    <button id="hamburgerBtn" class="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="tb-brand" id="brandBtn">
+      <span class="brand-sym">☣</span>
+      <span class="brand-name">SURVIVAL<em>HUB</em></span>
+    </div>
+  </div>
+
+  <nav class="tb-nav" id="mainNav">
+    <button class="nav-btn" data-page="homePage">⊞ Accueil</button>
+    <button class="nav-btn" data-page="profilePage">◉ Profil</button>
+    <button class="nav-btn" data-page="lobbyPage">◈ Lobby</button>
+    <div class="nav-div"></div>
+    <button class="nav-btn nav-game" data-page="survivalPage">DayZero</button>
+    <button class="nav-btn nav-game" data-page="miniPage">Mini Survival</button>
+    <button class="nav-btn nav-game" data-page="battlePage">Battle Lite</button>
+    <button class="nav-btn nav-game" data-page="arcadePage">Arcade Horde</button>
+  </nav>
+
+  <div class="tb-right">
+    <div id="tbUserInfo" class="tb-user" style="display:none">
+      <img id="tbAvatar" class="tb-avatar" src="" alt="Avatar" />
+      <span id="tbPseudo" class="tb-pseudo"></span>
+      <span class="tb-online"><span class="dot-on"></span>En ligne</span>
+    </div>
+    <button id="logoutBtn" class="btn-danger btn-sm" style="display:none">Déco.</button>
+    <button id="loginNavBtn" class="btn-outline btn-sm">Connexion</button>
+  </div>
+</header>
+
+<!-- SIDEBAR MOBILE -->
+<aside id="sidebar">
+  <div class="sb-hd">
+    <span class="brand-sym">☣</span>
+    <span style="font-family:'Orbitron',sans-serif;font-weight:700;">SurvivalHub</span>
+  </div>
+  <nav class="sb-nav">
+    <button class="sb-btn" data-page="homePage">⊞ Accueil</button>
+    <button class="sb-btn" data-page="profilePage">◉ Profil</button>
+    <button class="sb-btn" data-page="lobbyPage">◈ Lobby</button>
+    <div class="sb-sep">JEUX</div>
+    <button class="sb-btn" data-page="survivalPage">☠ DayZero</button>
+    <button class="sb-btn" data-page="miniPage">🌲 Mini Survival</button>
+    <button class="sb-btn" data-page="battlePage">⚔ Battle Lite</button>
+    <button class="sb-btn" data-page="arcadePage">🎮 Arcade Horde</button>
+  </nav>
+  <div class="sb-footer">
+    <button id="sbLogout" class="btn-danger btn-sm" style="display:none;width:100%">Déconnexion</button>
+  </div>
+</aside>
+<div id="sbOverlay"></div>
+
+<!-- ====== PAGES ====== -->
+<main id="app">
+
+  <!-- AUTH PAGE -->
+  <section id="authPage" class="page">
+    <div class="auth-wrap">
+      <div class="auth-brand">
+        <div class="auth-logo">☣</div>
+        <h1>SURVIVAL<span>HUB</span></h1>
+        <p>Plateforme de jeux survival multijoueur</p>
+      </div>
+      <div class="auth-card">
+        <div class="auth-tabs">
+          <button class="atab active" id="atab-login">Connexion</button>
+          <button class="atab" id="atab-register">Inscription</button>
+        </div>
+        <div id="form-login" class="aform">
+          <div class="fgroup">
+            <label>Email</label>
+            <input type="email" id="loginEmail" placeholder="survivor@domain.com" autocomplete="email" />
           </div>
-          <p id="authMsg"></p>
+          <div class="fgroup">
+            <label>Mot de passe</label>
+            <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" />
+          </div>
+          <button id="loginBtn" class="btn-primary btn-full">SE CONNECTER</button>
+          <p class="auth-link">Pas de compte ? <a href="#" id="toRegisterLink">Inscription →</a></p>
         </div>
-      </section>
-
-      <section id="homePage" class="page">
-        <h2>Jeux disponibles</h2>
-        <div id="gamesGrid" class="games-grid"></div>
-      </section>
-
-      <section id="profilePage" class="page">
-        <div class="card profile">
-          <img id="avatar" alt="avatar" />
-          <input id="pseudoInput" />
-          <button id="saveProfile">Sauvegarder profil</button>
-          <div id="stats"></div>
+        <div id="form-register" class="aform" style="display:none">
+          <div class="fgroup">
+            <label>Pseudo</label>
+            <input type="text" id="regPseudo" placeholder="Survivant42" maxlength="20" />
+          </div>
+          <div class="fgroup">
+            <label>Email</label>
+            <input type="email" id="regEmail" placeholder="survivor@domain.com" autocomplete="email" />
+          </div>
+          <div class="fgroup">
+            <label>Mot de passe</label>
+            <input type="password" id="regPassword" placeholder="Min. 6 caractères" minlength="6" autocomplete="new-password" />
+          </div>
+          <button id="registerBtn" class="btn-primary btn-full">CRÉER UN COMPTE</button>
+          <p class="auth-link">Déjà un compte ? <a href="#" id="toLoginLink">Connexion →</a></p>
         </div>
-      </section>
+        <div id="authMsg" class="auth-msg"></div>
+      </div>
+      <div class="auth-feats">
+        <div class="af"><span>🎮</span><span>4 Jeux</span></div>
+        <div class="af"><span>🌐</span><span>Multijoueur</span></div>
+        <div class="af"><span>🏆</span><span>Classement</span></div>
+        <div class="af"><span>⚔</span><span>PvPvE</span></div>
+      </div>
+    </div>
+  </section>
 
-      <section id="lobbyPage" class="page">
-        <div class="split">
-          <div class="card">
-            <h3>Lobby & Matchmaking</h3>
-            <input id="lobbyName" placeholder="Nom du lobby" />
-            <select id="lobbyGame">
-              <option value="dayzero">DayZero</option>
-              <option value="battle-lite">Battle Lite</option>
-            </select>
-            <div class="row">
-              <button id="createLobby">Créer</button>
-              <button id="autoMatch" class="primary">Matchmaking auto</button>
+  <!-- HOME PAGE -->
+  <section id="homePage" class="page" style="display:none">
+    <div class="hero">
+      <div class="hero-content">
+        <div class="hero-badge">PLATEFORME SURVIVAL MULTIJOUEUR</div>
+        <h1 class="hero-title">SURVIVRE<br><span>OU PÉRIR</span></h1>
+        <p class="hero-desc">Affrontez des hordes de zombies, battez de vrais joueurs et devenez le dernier survivant.</p>
+        <div class="hero-btns">
+          <button class="btn-primary btn-lg" id="heroPlayBtn">⚡ JOUER MAINTENANT</button>
+          <button class="btn-outline btn-lg" data-page="lobbyPage">◈ TROUVER UN LOBBY</button>
+        </div>
+        <div class="hero-stats">
+          <div class="hst"><span class="hst-n" id="hOnline">0</span><span class="hst-l">En ligne</span></div>
+          <div class="hst"><span class="hst-n">4</span><span class="hst-l">Jeux</span></div>
+          <div class="hst"><span class="hst-n" id="hLobbies">0</span><span class="hst-l">Lobbies</span></div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <canvas id="heroCanvas" width="380" height="380"></canvas>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-hd"><h2>JEUX DISPONIBLES</h2><div class="sec-line"></div></div>
+      <div id="gamesGrid" class="games-grid"></div>
+    </div>
+
+    <div class="section section-dark">
+      <div class="sec-hd"><h2>POURQUOI SURVIVALHUB</h2><div class="sec-line"></div></div>
+      <div class="feats-grid">
+        <div class="feat"><div class="feat-ico">🌐</div><h3>Multijoueur Réel</h3><p>WebSocket temps réel, synchronisation instantanée</p></div>
+        <div class="feat"><div class="feat-ico">🧠</div><h3>IA Zombies</h3><p>Ennemis intelligents avec spawn et comportement adaptatifs</p></div>
+        <div class="feat"><div class="feat-ico">📊</div><h3>Progression</h3><p>Kills, XP, niveaux et inventaire persistants</p></div>
+        <div class="feat"><div class="feat-ico">🎯</div><h3>Matchmaking</h3><p>Rejoignez une partie automatiquement en un clic</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROFILE PAGE -->
+  <section id="profilePage" class="page" style="display:none">
+    <div class="page-wrap">
+      <div class="page-hd"><h1>PROFIL DU SURVIVANT</h1><div class="phd-line"></div></div>
+      <div class="profile-grid">
+        <div class="p-card p-identity">
+          <div class="p-av-wrap">
+            <img id="profileAvatar" class="p-avatar" src="" alt="Avatar" />
+            <div class="p-online"><span class="dot-on"></span> En ligne</div>
+          </div>
+          <div class="fgroup">
+            <label>Pseudo</label>
+            <input type="text" id="profilePseudo" placeholder="Votre pseudo" maxlength="20" />
+          </div>
+          <div class="fgroup">
+            <label>Style d'avatar</label>
+            <div id="avatarStyleGrid" class="av-style-grid"></div>
+          </div>
+          <div class="fgroup">
+            <label>Seed</label>
+            <div class="seed-row">
+              <input type="text" id="avatarSeed" placeholder="seed..." />
+              <button id="randomSeedBtn" class="btn-outline btn-sm" type="button">🎲</button>
             </div>
-            <div id="lobbyList"></div>
           </div>
-          <div class="card">
-            <h3>Chat lobby</h3>
-            <div id="chatLog" class="chat-log"></div>
-            <div class="row">
-              <input id="chatInput" placeholder="Message" />
-              <button id="sendChat">Envoyer</button>
+          <button id="saveProfileBtn" class="btn-primary btn-full">SAUVEGARDER</button>
+        </div>
+
+        <div class="p-stats-col">
+          <div class="p-card">
+            <h3 class="p-card-title">STATISTIQUES</h3>
+            <div class="stats-grid">
+              <div class="stat-box"><div class="stat-ico">☠</div><div id="sKills" class="stat-val">0</div><div class="stat-lbl">Kills</div></div>
+              <div class="stat-box"><div class="stat-ico">💀</div><div id="sDeaths" class="stat-val">0</div><div class="stat-lbl">Morts</div></div>
+              <div class="stat-box"><div class="stat-ico">🏆</div><div id="sWins" class="stat-val">0</div><div class="stat-lbl">Victoires</div></div>
+              <div class="stat-box"><div class="stat-ico">⭐</div><div id="sXP" class="stat-val">0</div><div class="stat-lbl">XP</div></div>
+            </div>
+          </div>
+          <div class="p-card">
+            <h3 class="p-card-title">NIVEAU &amp; PROGRESSION</h3>
+            <div class="lvl-row">
+              <div class="lvl-badge" id="levelBadge">1</div>
+              <div class="lvl-info">
+                <div id="levelTitle" class="lvl-title">Novice</div>
+                <div class="xp-wrap"><div id="xpBar" class="xp-fill"></div></div>
+                <div id="xpText" class="xp-text">0 / 1000 XP</div>
+              </div>
+            </div>
+          </div>
+          <div class="p-card">
+            <h3 class="p-card-title">INVENTAIRE</h3>
+            <div id="inventoryGrid" class="inv-grid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOBBY PAGE -->
+  <section id="lobbyPage" class="page" style="display:none">
+    <div class="page-wrap">
+      <div class="page-hd"><h1>LOBBY &amp; MATCHMAKING</h1><div class="phd-line"></div></div>
+      <div class="lobby-grid">
+        <div class="lobby-left">
+          <div class="panel">
+            <div class="panel-hd">CRÉER UN LOBBY</div>
+            <div class="panel-body">
+              <div class="fgroup">
+                <label>Nom du lobby</label>
+                <input type="text" id="lobbyName" placeholder="Mon lobby..." maxlength="30" />
+              </div>
+              <div class="fgroup">
+                <label>Jeu</label>
+                <select id="lobbyGame">
+                  <option value="dayzero">☠ DayZero Survival</option>
+                  <option value="mini-survival">🌲 Mini Survival</option>
+                  <option value="battle-lite">⚔ Battle Lite</option>
+                  <option value="arcade-horde">🎮 Arcade Horde</option>
+                </select>
+              </div>
+              <button id="createLobbyBtn" class="btn-primary btn-full">CRÉER</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-hd">
+              MATCHMAKING AUTO
+              <div id="mmStatus" class="mm-st"><span class="dot-off"></span><span>Prêt</span></div>
+            </div>
+            <div class="panel-body">
+              <div class="fgroup">
+                <label>Jeu cible</label>
+                <select id="matchGame">
+                  <option value="dayzero">☠ DayZero Survival</option>
+                  <option value="mini-survival">🌲 Mini Survival</option>
+                  <option value="battle-lite">⚔ Battle Lite</option>
+                  <option value="arcade-horde">🎮 Arcade Horde</option>
+                </select>
+              </div>
+              <button id="autoMatchBtn" class="btn-accent btn-full">TROUVER UNE PARTIE</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-hd">LOBBIES ACTIFS <span id="lobbyCountBadge" class="badge">0</span></div>
+            <div id="lobbyList" class="lobby-list">
+              <div class="empty-st">Aucun lobby actif</div>
             </div>
           </div>
         </div>
-      </section>
 
-      <section id="survivalPage" class="page">
-        <canvas id="gameCanvas" width="960" height="540"></canvas>
-        <div id="hud" class="hud"></div>
-      </section>
+        <div class="lobby-right">
+          <div class="panel">
+            <div class="panel-hd">
+              <span id="activeLobbyTitle">AUCUN LOBBY</span>
+              <button id="leaveLobbyBtn" class="btn-danger btn-xs" style="display:none">Quitter</button>
+            </div>
+            <div id="noLobbyMsg" class="no-lobby">
+              <div class="no-lobby-ico">◈</div>
+              <p>Rejoignez ou créez un lobby</p>
+            </div>
+            <div id="activeLobbyContent" style="display:none">
+              <div class="alb-info">
+                <span id="alGameBadge" class="game-badge">DayZero</span>
+                <span id="alPlayerCount" class="player-count">0/8 joueurs</span>
+              </div>
+              <div class="panel-section">
+                <h4>JOUEURS</h4>
+                <div id="lobbyPlayersList" class="lplayers"></div>
+              </div>
+              <div class="panel-section">
+                <button id="startFromLobbyBtn" class="btn-primary btn-full">LANCER LA PARTIE</button>
+              </div>
+            </div>
+          </div>
 
-      <section id="miniPage" class="page">
-        <canvas id="miniCanvas" width="960" height="540"></canvas>
-        <div id="miniHud" class="hud"></div>
-      </section>
+          <div class="panel chat-panel">
+            <div class="panel-hd">
+              CHAT LOBBY
+              <span id="chatStatus" class="chat-st"><span class="dot-off"></span>Rejoignez un lobby</span>
+            </div>
+            <div id="chatLog" class="chat-log">
+              <div class="chat-welcome">Rejoignez un lobby pour discuter</div>
+            </div>
+            <div class="chat-input-row">
+              <input type="text" id="chatInput" placeholder="Message..." maxlength="180" disabled />
+              <button id="sendChatBtn" class="btn-primary btn-sm" disabled>↵</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      <section id="battlePage" class="page">
-        <canvas id="battleCanvas" width="960" height="540"></canvas>
-        <div id="battleHud" class="hud"></div>
-      </section>
+  <!-- DAYZERO PAGE -->
+  <section id="survivalPage" class="page game-page" style="display:none">
+    <div class="game-hud">
+      <div class="hud-row">
+        <button class="hud-back" id="svBackBtn">← QUITTER</button>
+        <span class="hud-title">DAYZERO</span>
+        <div class="hud-bars">
+          <div class="hbar-row"><span class="hbl">PV</span><div class="hbar"><div id="sv-hp-bar" class="hbf hbf-hp" style="width:100%"></div></div><span id="sv-hp" class="hbv">100</span></div>
+          <div class="hbar-row"><span class="hbl">🍖</span><div class="hbar"><div id="sv-hunger-bar" class="hbf hbf-hunger" style="width:100%"></div></div><span id="sv-hunger" class="hbv">100</span></div>
+          <div class="hbar-row"><span class="hbl">💧</span><div class="hbar"><div id="sv-thirst-bar" class="hbf hbf-thirst" style="width:100%"></div></div><span id="sv-thirst" class="hbv">100</span></div>
+        </div>
+        <div class="hud-stats">
+          <div class="hst-item"><span>🔫</span><span id="sv-ammo">0</span></div>
+          <div class="hst-item"><span>☠</span><span id="sv-score">0</span></div>
+          <div class="hst-item"><span>👥</span><span id="sv-players">1</span></div>
+        </div>
+      </div>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+    <div class="ctrl-hint">ZQSD/WASD: Déplacer &nbsp;|&nbsp; ESPACE: Tirer &nbsp;|&nbsp; Loot auto</div>
+    <div class="touch-ctrls" id="tcSurvival">
+      <div class="jzone" id="jzoneSv"><div class="jbase"><div id="jthumbSv" class="jthumb"></div></div></div>
+      <button class="touch-act" id="tShoot">🔫</button>
+    </div>
+  </section>
 
-      <section id="arcadePage" class="page">
-        <canvas id="arcadeCanvas" width="960" height="540"></canvas>
-        <div id="arcadeHud" class="hud"></div>
-      </section>
-    </main>
+  <!-- MINI SURVIVAL PAGE -->
+  <section id="miniPage" class="page game-page" style="display:none">
+    <div class="game-hud">
+      <div class="hud-row">
+        <button class="hud-back" id="miniBackBtn">← QUITTER</button>
+        <span class="hud-title">MINI SURVIVAL</span>
+        <div class="hud-bars">
+          <div class="hbar-row"><span class="hbl">PV</span><div class="hbar"><div id="ms-hp-bar" class="hbf hbf-hp" style="width:100%"></div></div><span id="ms-hp" class="hbv">100</span></div>
+          <div class="hbar-row"><span class="hbl">🍖</span><div class="hbar"><div id="ms-food-bar" class="hbf hbf-hunger" style="width:100%"></div></div><span id="ms-food" class="hbv">100</span></div>
+          <div class="hbar-row"><span class="hbl">💧</span><div class="hbar"><div id="ms-water-bar" class="hbf hbf-thirst" style="width:100%"></div></div><span id="ms-water" class="hbv">100</span></div>
+        </div>
+        <div class="hud-stats">
+          <div class="hst-item"><span>📦</span><span id="ms-loot">0</span></div>
+        </div>
+      </div>
+    </div>
+    <canvas id="miniCanvas"></canvas>
+    <div class="ctrl-hint">ZQSD/WASD: Déplacer &nbsp;|&nbsp; Loot auto</div>
+    <div class="touch-ctrls" id="tcMini">
+      <div class="jzone" id="jzoneMini"><div class="jbase"><div id="jthumbMini" class="jthumb"></div></div></div>
+    </div>
+  </section>
 
-    <script type="module" src="/main.js"></script>
-  </body>
+  <!-- BATTLE LITE PAGE -->
+  <section id="battlePage" class="page game-page" style="display:none">
+    <div class="game-hud">
+      <div class="hud-row">
+        <button class="hud-back" id="battleBackBtn">← QUITTER</button>
+        <span class="hud-title">BATTLE LITE</span>
+        <div class="hud-bars">
+          <div class="hbar-row"><span class="hbl">PV</span><div class="hbar"><div id="bl-hp-bar" class="hbf hbf-hp" style="width:100%"></div></div><span id="bl-hp" class="hbv">100</span></div>
+        </div>
+        <div class="hud-stats">
+          <div class="hst-item"><span>☠</span><span id="bl-kills">0</span></div>
+          <div class="hst-item"><span>👾</span><span id="bl-enemies">0</span></div>
+        </div>
+      </div>
+    </div>
+    <canvas id="battleCanvas"></canvas>
+    <div class="ctrl-hint">ZQSD/WASD: Déplacer &nbsp;|&nbsp; ESPACE: Attaquer</div>
+    <div class="touch-ctrls" id="tcBattle">
+      <div class="jzone" id="jzoneBattle"><div class="jbase"><div id="jthumbBattle" class="jthumb"></div></div></div>
+      <button class="touch-act" id="tAttackBl">⚔</button>
+    </div>
+  </section>
+
+  <!-- ARCADE HORDE PAGE -->
+  <section id="arcadePage" class="page game-page" style="display:none">
+    <div class="game-hud">
+      <div class="hud-row">
+        <button class="hud-back" id="arcadeBackBtn">← QUITTER</button>
+        <span class="hud-title">ARCADE HORDE</span>
+        <div class="hud-bars">
+          <div class="hbar-row"><span class="hbl">PV</span><div class="hbar"><div id="ah-hp-bar" class="hbf hbf-hp" style="width:100%"></div></div><span id="ah-hp" class="hbv">100</span></div>
+        </div>
+        <div class="hud-stats">
+          <div class="hst-item"><span>🏆</span><span id="ah-score">0</span></div>
+          <div class="hst-item"><span>🌊</span><span id="ah-wave">1</span></div>
+          <div class="hst-item"><span>👾</span><span id="ah-horde">0</span></div>
+        </div>
+      </div>
+    </div>
+    <canvas id="arcadeCanvas"></canvas>
+    <div class="ctrl-hint">ZQSD/WASD: Déplacer &nbsp;|&nbsp; ESPACE: Attaquer</div>
+    <div class="touch-ctrls" id="tcArcade">
+      <div class="jzone" id="jzoneArcade"><div class="jbase"><div id="jthumbArcade" class="jthumb"></div></div></div>
+      <button class="touch-act" id="tAttackAh">⚔</button>
+    </div>
+  </section>
+
+</main>
+
+<script src="/socket.io/socket.io.js"></script>
+<script type="module" src="/js/main.js"></script>
+</body>
 </html>
