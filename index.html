@@ -1,430 +1,710 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>SurvivalHub — Plateforme Survival Multijoueur</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@700;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameVerse - Plateforme de Jeux Mobiles</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 100%);
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        header {
+            background: rgba(10, 14, 39, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 2px solid #00d4ff;
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .menu {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .menu a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .menu a:hover {
+            color: #00d4ff;
+        }
+
+        .login-btn {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            border: none;
+            color: #000;
+            padding: 0.6rem 1.5rem;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        /* HERO SECTION */
+        .hero {
+            padding: 3rem 1rem;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(0, 212, 255, 0.1) 0%, transparent 100%);
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: #aaa;
+            margin-bottom: 2rem;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* GAMES GRID */
+        .games-section {
+            padding: 2rem 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .games-title {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: #00d4ff;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .game-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+        }
+
+        .game-card-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #1a4d7a, #0a2f5c);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(0, 212, 255, 0.1) 50%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .game-card-content {
+            padding: 1.5rem;
+        }
+
+        .game-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .game-card p {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            min-height: 40px;
+        }
+
+        .play-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            border: none;
+            color: #000;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-size: 1rem;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .play-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* MODAL GAME */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 100%);
+            border: 2px solid #00d4ff;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.3);
+            animation: modalSlide 0.3s ease-out;
+        }
+
+        @keyframes modalSlide {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            color: #00d4ff;
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* GAME CANVAS */
+        #gameCanvas {
+            display: block;
+            margin: 0 auto;
+            background: #000;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .game-info {
+            padding: 1rem;
+            background: rgba(0, 212, 255, 0.05);
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .score-display {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #00d4ff;
+            font-weight: bold;
+        }
+
+        .game-controls {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            border: none;
+            color: #000;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .control-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .menu {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                max-width: 100%;
+                max-height: 100vh;
+                border-radius: 15px;
+            }
+        }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: #666;
+            border-top: 1px solid rgba(0, 212, 255, 0.2);
+            margin-top: 3rem;
+        }
+    </style>
 </head>
 <body>
-
-<!-- LOADING SCREEN -->
-<div id="loadingScreen">
-  <div class="ls-inner">
-    <div class="ls-logo">☣</div>
-    <div class="ls-title">SURVIVAL<em>HUB</em></div>
-    <div class="ls-bar"><div id="lsProgress"></div></div>
-    <div class="ls-status" id="lsStatus">Initialisation...</div>
-  </div>
-</div>
-
-<!-- TOASTS -->
-<div id="toastContainer"></div>
-
-<!-- TOPBAR -->
-<header id="topbar">
-  <div class="tb-left">
-    <button id="hamburgerBtn" class="hamburger" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
-    <div class="tb-brand" id="brandBtn">
-      <span class="brand-sym">☣</span>
-      <span class="brand-name">SURVIVAL<em>HUB</em></span>
-    </div>
-  </div>
-
-  <nav class="tb-nav" id="mainNav">
-    <button class="nav-btn" data-page="homePage">⊞ Accueil</button>
-    <button class="nav-btn" data-page="profilePage">◉ Profil</button>
-    <button class="nav-btn" data-page="lobbyPage">◈ Lobby</button>
-    <div class="nav-div"></div>
-    <button class="nav-btn nav-game" data-page="survivalPage">DayZero</button>
-    <button class="nav-btn nav-game" data-page="miniPage">Mini Survival</button>
-    <button class="nav-btn nav-game" data-page="battlePage">Battle Lite</button>
-    <button class="nav-btn nav-game" data-page="arcadePage">Arcade Horde</button>
-  </nav>
-
-  <div class="tb-right">
-    <div id="tbUserInfo" class="tb-user" style="display:none">
-      <img id="tbAvatar" class="tb-avatar" src="" alt="Avatar" />
-      <span id="tbPseudo" class="tb-pseudo"></span>
-      <span class="tb-online"><span class="dot-on"></span>En ligne</span>
-    </div>
-    <button id="logoutBtn" class="btn-danger btn-sm" style="display:none">Déco.</button>
-    <button id="loginNavBtn" class="btn-outline btn-sm">Connexion</button>
-  </div>
-</header>
-
-<!-- SIDEBAR MOBILE -->
-<aside id="sidebar">
-  <div class="sb-hd">
-    <span class="brand-sym">☣</span>
-    <span style="font-family:'Orbitron',sans-serif;font-weight:700;">SurvivalHub</span>
-  </div>
-  <nav class="sb-nav">
-    <button class="sb-btn" data-page="homePage">⊞ Accueil</button>
-    <button class="sb-btn" data-page="profilePage">◉ Profil</button>
-    <button class="sb-btn" data-page="lobbyPage">◈ Lobby</button>
-    <div class="sb-sep">JEUX</div>
-    <button class="sb-btn" data-page="survivalPage">☠ DayZero</button>
-    <button class="sb-btn" data-page="miniPage">🌲 Mini Survival</button>
-    <button class="sb-btn" data-page="battlePage">⚔ Battle Lite</button>
-    <button class="sb-btn" data-page="arcadePage">🎮 Arcade Horde</button>
-  </nav>
-  <div class="sb-footer">
-    <button id="sbLogout" class="btn-danger btn-sm" style="display:none;width:100%">Déconnexion</button>
-  </div>
-</aside>
-<div id="sbOverlay"></div>
-
-<!-- ====== PAGES ====== -->
-<main id="app">
-
-  <!-- AUTH PAGE -->
-  <section id="authPage" class="page">
-    <div class="auth-wrap">
-      <div class="auth-brand">
-        <div class="auth-logo">☣</div>
-        <h1>SURVIVAL<span>HUB</span></h1>
-        <p>Plateforme de jeux survival multijoueur</p>
-      </div>
-      <div class="auth-card">
-        <div class="auth-tabs">
-          <button class="atab active" id="atab-login">Connexion</button>
-          <button class="atab" id="atab-register">Inscription</button>
+    <!-- HEADER -->
+    <header>
+        <div class="header-content">
+            <div class="logo">🎮 GameVerse</div>
+            <nav>
+                <ul class="menu">
+                    <li><a href="#accueil">Accueil</a></li>
+                    <li><a href="#jeux">Jeux</a></li>
+                    <li><a href="#classement">Classement</a></li>
+                </ul>
+            </nav>
+            <button class="login-btn">Se Connecter</button>
         </div>
-        <div id="form-login" class="aform">
-          <div class="fgroup">
-            <label>Email</label>
-            <input type="email" id="loginEmail" placeholder="survivor@domain.com" autocomplete="email" />
-          </div>
-          <div class="fgroup">
-            <label>Mot de passe</label>
-            <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" />
-          </div>
-          <button id="loginBtn" class="btn-primary btn-full">SE CONNECTER</button>
-          <p class="auth-link">Pas de compte ? <a href="#" id="toRegisterLink">Inscription →</a></p>
-        </div>
-        <div id="form-register" class="aform" style="display:none">
-          <div class="fgroup">
-            <label>Pseudo</label>
-            <input type="text" id="regPseudo" placeholder="Survivant42" maxlength="20" />
-          </div>
-          <div class="fgroup">
-            <label>Email</label>
-            <input type="email" id="regEmail" placeholder="survivor@domain.com" autocomplete="email" />
-          </div>
-          <div class="fgroup">
-            <label>Mot de passe</label>
-            <input type="password" id="regPassword" placeholder="Min. 6 caractères" minlength="6" autocomplete="new-password" />
-          </div>
-          <button id="registerBtn" class="btn-primary btn-full">CRÉER UN COMPTE</button>
-          <p class="auth-link">Déjà un compte ? <a href="#" id="toLoginLink">Connexion →</a></p>
-        </div>
-        <div id="authMsg" class="auth-msg"></div>
-      </div>
-      <div class="auth-feats">
-        <div class="af"><span>🎮</span><span>4 Jeux</span></div>
-        <div class="af"><span>🌐</span><span>Multijoueur</span></div>
-        <div class="af"><span>🏆</span><span>Classement</span></div>
-        <div class="af"><span>⚔</span><span>PvPvE</span></div>
-      </div>
-    </div>
-  </section>
+    </header>
 
-  <!-- HOME PAGE -->
-  <section id="homePage" class="page" style="display:none">
-    <div class="hero">
-      <div class="hero-content">
-        <div class="hero-badge">PLATEFORME SURVIVAL MULTIJOUEUR</div>
-        <h1 class="hero-title">SURVIVRE<br><span>OU PÉRIR</span></h1>
-        <p class="hero-desc">Affrontez des hordes de zombies, battez de vrais joueurs et devenez le dernier survivant.</p>
-        <div class="hero-btns">
-          <button class="btn-primary btn-lg" id="heroPlayBtn">⚡ JOUER MAINTENANT</button>
-          <button class="btn-outline btn-lg" data-page="lobbyPage">◈ TROUVER UN LOBBY</button>
-        </div>
-        <div class="hero-stats">
-          <div class="hst"><span class="hst-n" id="hOnline">0</span><span class="hst-l">En ligne</span></div>
-          <div class="hst"><span class="hst-n">4</span><span class="hst-l">Jeux</span></div>
-          <div class="hst"><span class="hst-n" id="hLobbies">0</span><span class="hst-l">Lobbies</span></div>
-        </div>
-      </div>
-      <div class="hero-visual">
-        <canvas id="heroCanvas" width="380" height="380"></canvas>
-      </div>
-    </div>
+    <!-- HERO -->
+    <section class="hero">
+        <h1>🚀 Bienvenue dans GameVerse</h1>
+        <p>Joue à des jeux incroyables directement dans ton navigateur</p>
+    </section>
 
-    <div class="section">
-      <div class="sec-hd"><h2>JEUX DISPONIBLES</h2><div class="sec-line"></div></div>
-      <div id="gamesGrid" class="games-grid"></div>
-    </div>
-
-    <div class="section section-dark">
-      <div class="sec-hd"><h2>POURQUOI SURVIVALHUB</h2><div class="sec-line"></div></div>
-      <div class="feats-grid">
-        <div class="feat"><div class="feat-ico">🌐</div><h3>Multijoueur Réel</h3><p>WebSocket temps réel, synchronisation instantanée</p></div>
-        <div class="feat"><div class="feat-ico">🧠</div><h3>IA Zombies</h3><p>Ennemis intelligents avec spawn et comportement adaptatifs</p></div>
-        <div class="feat"><div class="feat-ico">📊</div><h3>Progression</h3><p>Kills, XP, niveaux et inventaire persistants</p></div>
-        <div class="feat"><div class="feat-ico">🎯</div><h3>Matchmaking</h3><p>Rejoignez une partie automatiquement en un clic</p></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- PROFILE PAGE -->
-  <section id="profilePage" class="page" style="display:none">
-    <div class="page-wrap">
-      <div class="page-hd"><h1>PROFIL DU SURVIVANT</h1><div class="phd-line"></div></div>
-      <div class="profile-grid">
-        <div class="p-card p-identity">
-          <div class="p-av-wrap">
-            <img id="profileAvatar" class="p-avatar" src="" alt="Avatar" />
-            <div class="p-online"><span class="dot-on"></span> En ligne</div>
-          </div>
-          <div class="fgroup">
-            <label>Pseudo</label>
-            <input type="text" id="profilePseudo" placeholder="Votre pseudo" maxlength="20" />
-          </div>
-          <div class="fgroup">
-            <label>Style d'avatar</label>
-            <div id="avatarStyleGrid" class="av-style-grid"></div>
-          </div>
-          <div class="fgroup">
-            <label>Seed</label>
-            <div class="seed-row">
-              <input type="text" id="avatarSeed" placeholder="seed..." />
-              <button id="randomSeedBtn" class="btn-outline btn-sm" type="button">🎲</button>
+    <!-- GAMES SECTION -->
+    <section class="games-section" id="jeux">
+        <h2 class="games-title">Nos Jeux</h2>
+        <div class="games-grid">
+            <div class="game-card">
+                <div class="game-card-image">🐦</div>
+                <div class="game-card-content">
+                    <h3>Sky Bird</h3>
+                    <p>Aide l'oiseau à traverser les obstacles. Appuie pour sauter !</p>
+                    <button class="play-btn" onclick="startGame('skybird')">Jouer</button>
+                </div>
             </div>
-          </div>
-          <button id="saveProfileBtn" class="btn-primary btn-full">SAUVEGARDER</button>
-        </div>
 
-        <div class="p-stats-col">
-          <div class="p-card">
-            <h3 class="p-card-title">STATISTIQUES</h3>
-            <div class="stats-grid">
-              <div class="stat-box"><div class="stat-ico">☠</div><div id="sKills" class="stat-val">0</div><div class="stat-lbl">Kills</div></div>
-              <div class="stat-box"><div class="stat-ico">💀</div><div id="sDeaths" class="stat-val">0</div><div class="stat-lbl">Morts</div></div>
-              <div class="stat-box"><div class="stat-ico">🏆</div><div id="sWins" class="stat-val">0</div><div class="stat-lbl">Victoires</div></div>
-              <div class="stat-box"><div class="stat-ico">⭐</div><div id="sXP" class="stat-val">0</div><div class="stat-lbl">XP</div></div>
+            <div class="game-card">
+                <div class="game-card-image">⚡</div>
+                <div class="game-card-content">
+                    <h3>Speed Dash</h3>
+                    <p>Course effrénée. Évite les obstacles et collecte des bonus.</p>
+                    <button class="play-btn" onclick="startGame('speeddash')">Jouer</button>
+                </div>
             </div>
-          </div>
-          <div class="p-card">
-            <h3 class="p-card-title">NIVEAU &amp; PROGRESSION</h3>
-            <div class="lvl-row">
-              <div class="lvl-badge" id="levelBadge">1</div>
-              <div class="lvl-info">
-                <div id="levelTitle" class="lvl-title">Novice</div>
-                <div class="xp-wrap"><div id="xpBar" class="xp-fill"></div></div>
-                <div id="xpText" class="xp-text">0 / 1000 XP</div>
-              </div>
+
+            <div class="game-card">
+                <div class="game-card-image">💎</div>
+                <div class="game-card-content">
+                    <h3>Gem Collector</h3>
+                    <p>Collecte les diamants et accumule les points. Jeu relaxant.</p>
+                    <button class="play-btn" onclick="startGame('gemcollector')">Jouer</button>
+                </div>
             </div>
-          </div>
-          <div class="p-card">
-            <h3 class="p-card-title">INVENTAIRE</h3>
-            <div id="inventoryGrid" class="inv-grid"></div>
-          </div>
+
+            <div class="game-card">
+                <div class="game-card-image">🎯</div>
+                <div class="game-card-content">
+                    <h3>Tap Master</h3>
+                    <p>Tape aussi vite que possible. Teste ta vitesse et ta précision.</p>
+                    <button class="play-btn" onclick="startGame('tapmaster')">Jouer</button>
+                </div>
+            </div>
+
+            <div class="game-card">
+                <div class="game-card-image">🌟</div>
+                <div class="game-card-content">
+                    <h3>Starfall</h3>
+                    <p>Récupère les étoiles qui tombent avant qu'elles ne disparaissent.</p>
+                    <button class="play-btn" onclick="startGame('skybird')">Jouer</button>
+                </div>
+            </div>
+
+            <div class="game-card">
+                <div class="game-card-image">🏆</div>
+                <div class="game-card-content">
+                    <h3>Champion Mode</h3>
+                    <p>Devient un champion. Défi extrême pour les meilleurs joueurs.</p>
+                    <button class="play-btn" onclick="startGame('skybird')">Jouer</button>
+                </div>
+            </div>
         </div>
-      </div>
+    </section>
+
+    <!-- GAME MODAL -->
+    <div id="gameModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Sky Bird</h2>
+                <button class="close-btn" onclick="closeGame()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <canvas id="gameCanvas"></canvas>
+                <div class="game-info">
+                    <div class="score-display">
+                        Score: <span id="score">0</span>
+                    </div>
+                    <div class="game-controls">
+                        <button class="control-btn" id="playBtn" onclick="toggleGame()">Démarrer</button>
+                        <button class="control-btn" onclick="closeGame()">Fermer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </section>
 
-  <!-- LOBBY PAGE -->
-  <section id="lobbyPage" class="page" style="display:none">
-    <div class="page-wrap">
-      <div class="page-hd"><h1>LOBBY &amp; MATCHMAKING</h1><div class="phd-line"></div></div>
-      <div class="lobby-grid">
-        <div class="lobby-left">
-          <div class="panel">
-            <div class="panel-hd">CRÉER UN LOBBY</div>
-            <div class="panel-body">
-              <div class="fgroup">
-                <label>Nom du lobby</label>
-                <input type="text" id="lobbyName" placeholder="Mon lobby..." maxlength="30" />
-              </div>
-              <div class="fgroup">
-                <label>Jeu</label>
-                <select id="lobbyGame">
-                  <option value="dayzero">☠ DayZero Survival</option>
-                  <option value="mini-survival">🌲 Mini Survival</option>
-                  <option value="battle-lite">⚔ Battle Lite</option>
-                  <option value="arcade-horde">🎮 Arcade Horde</option>
-                </select>
-              </div>
-              <button id="createLobbyBtn" class="btn-primary btn-full">CRÉER</button>
-            </div>
-          </div>
+    <!-- FOOTER -->
+    <footer>
+        <p>&copy; 2024 GameVerse. Tous droits réservés. 🎮</p>
+    </footer>
 
-          <div class="panel">
-            <div class="panel-hd">
-              MATCHMAKING AUTO
-              <div id="mmStatus" class="mm-st"><span class="dot-off"></span><span>Prêt</span></div>
-            </div>
-            <div class="panel-body">
-              <div class="fgroup">
-                <label>Jeu cible</label>
-                <select id="matchGame">
-                  <option value="dayzero">☠ DayZero Survival</option>
-                  <option value="mini-survival">🌲 Mini Survival</option>
-                  <option value="battle-lite">⚔ Battle Lite</option>
-                  <option value="arcade-horde">🎮 Arcade Horde</option>
-                </select>
-              </div>
-              <button id="autoMatchBtn" class="btn-accent btn-full">TROUVER UNE PARTIE</button>
-            </div>
-          </div>
+    <script>
+        // GAME ENGINE
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let currentGame = null;
+        let gameRunning = false;
+        let gameScore = 0;
 
-          <div class="panel">
-            <div class="panel-hd">LOBBIES ACTIFS <span id="lobbyCountBadge" class="badge">0</span></div>
-            <div id="lobbyList" class="lobby-list">
-              <div class="empty-st">Aucun lobby actif</div>
-            </div>
-          </div>
-        </div>
+        // Set canvas size based on viewport
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const maxWidth = 600;
+            const width = Math.min(container.clientWidth - 20, maxWidth);
+            const height = Math.min(window.innerHeight * 0.5, width * 0.6);
+            canvas.width = width;
+            canvas.height = height;
+        }
 
-        <div class="lobby-right">
-          <div class="panel">
-            <div class="panel-hd">
-              <span id="activeLobbyTitle">AUCUN LOBBY</span>
-              <button id="leaveLobbyBtn" class="btn-danger btn-xs" style="display:none">Quitter</button>
-            </div>
-            <div id="noLobbyMsg" class="no-lobby">
-              <div class="no-lobby-ico">◈</div>
-              <p>Rejoignez ou créez un lobby</p>
-            </div>
-            <div id="activeLobbyContent" style="display:none">
-              <div class="alb-info">
-                <span id="alGameBadge" class="game-badge">DayZero</span>
-                <span id="alPlayerCount" class="player-count">0/8 joueurs</span>
-              </div>
-              <div class="panel-section">
-                <h4>JOUEURS</h4>
-                <div id="lobbyPlayersList" class="lplayers"></div>
-              </div>
-              <div class="panel-section">
-                <button id="startFromLobbyBtn" class="btn-primary btn-full">LANCER LA PARTIE</button>
-              </div>
-            </div>
-          </div>
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
 
-          <div class="panel chat-panel">
-            <div class="panel-hd">
-              CHAT LOBBY
-              <span id="chatStatus" class="chat-st"><span class="dot-off"></span>Rejoignez un lobby</span>
-            </div>
-            <div id="chatLog" class="chat-log">
-              <div class="chat-welcome">Rejoignez un lobby pour discuter</div>
-            </div>
-            <div class="chat-input-row">
-              <input type="text" id="chatInput" placeholder="Message..." maxlength="180" disabled />
-              <button id="sendChatBtn" class="btn-primary btn-sm" disabled>↵</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+        // START GAME
+        function startGame(gameName) {
+            document.getElementById('gameModal').classList.add('active');
+            document.getElementById('modalTitle').textContent = getGameTitle(gameName);
+            currentGame = gameName;
+            gameScore = 0;
+            gameRunning = false;
+            updateScore();
+            document.getElementById('playBtn').textContent = 'Démarrer';
+            initializeGame(gameName);
+        }
 
-  <!-- DAYZERO PAGE -->
-  <section id="survivalPage" class="page game-page" style="display:none">
-    <div class="game-hud">
-      <div class="hud-row">
-        <button class="hud-back" id="svBackBtn">← QUITTER</button>
-        <span class="hud-title">DAYZERO</span>
-        <div class="hud-bars">
-          <div class="hbar-row"><span class="hbl">PV</span><div class="hbar"><div id="sv-hp-bar" class="hbf hbf-hp" style="width:100%"></div></div><span id="sv-hp" class="hbv">100</span></div>
-          <div class="hbar-row"><span class="hbl">🍖</span><div class="hbar"><div id="sv-hunger-bar" class="hbf hbf-hunger" style="width:100%"></div></div><span id="sv-hunger" class="hbv">100</span></div>
-          <div class="hbar-row"><span class="hbl">💧</span><div class="hbar"><div id="sv-thirst-bar" class="hbf hbf-thirst" style="width:100%"></div></div><span id="sv-thirst" class="hbv">100</span></div>
-        </div>
-        <div class="hud-stats">
-          <div class="hst-item"><span>🔫</span><span id="sv-ammo">0</span></div>
-          <div class="hst-item"><span>☠</span><span id="sv-score">0</span></div>
-          <div class="hst-item"><span>👥</span><span id="sv-players">1</span></div>
-        </div>
-      </div>
-    </div>
-    <canvas id="gameCanvas"></canvas>
-    <div class="ctrl-hint">ZQSD/WASD: Déplacer &nbsp;|&nbsp; ESPACE: Tirer &nbsp;|&nbsp; Loot auto</div>
-    <div class="touch-ctrls" id="tcSurvival">
-      <div class="jzone" id="jzoneSv"><div class="jbase"><div id="jthumbSv" class="jthumb"></div></div></div>
-      <button class="touch-act" id="tShoot">🔫</button>
-    </div>
-  </section>
+        function getGameTitle(gameName) {
+            const titles = {
+                'skybird': '🐦 Sky Bird',
+                'speeddash': '⚡ Speed Dash',
+                'gemcollector': '💎 Gem Collector',
+                'tapmaster': '🎯 Tap Master'
+            };
+            return titles[gameName] || 'Jeu';
+        }
 
-  <!-- MINI SURVIVAL PAGE -->
-  <section id="miniPage" class="page game-page" style="display:none">
-    <div class="game-hud">
-      <div class="hud-row">
-        <button class="hud-back" id="miniBackBtn">← QUITTER</button>
-        <span class="hud-title">MINI SURVIVAL</span>
-        <div class="hud-bars">
-          <div class="hbar-row"><span class="hbl">PV</span><div class="hbar"><div id="ms-hp-bar" class="hbf hbf-hp" style="width:100%"></div></div><span id="ms-hp" class="hbv">100</span></div>
-          <div class="hbar-row"><span class="hbl">🍖</span><div class="hbar"><div id="ms-food-bar" class="hbf hbf-hunger" style="width:100%"></div></div><span id="ms-food" class="hbv">100</span></div>
-          <div class="hbar-row"><span class="hbl">💧</span><div class="hbar"><div id="ms-water-bar" class="hbf hbf-thirst" style="width:100%"></div></div><span id="ms-water" class="hbv">100</span></div>
-        </div>
-        <div class="hud-stats">
-          <div class="hst-item"><span>📦</span><span id="ms-loot">0</span></div>
-        </div>
-      </div>
-    </div>
-    <canvas id="miniCanvas"></canvas>
-    <div class="ctrl-hint">ZQSD/WASD: Déplacer &nbsp;|&nbsp; Loot auto</div>
-    <div class="touch-ctrls" id="tcMini">
-      <div class="jzone" id="jzoneMini"><div class="jbase"><div id="jthumbMini" class="jthumb"></div></div></div>
-    </div>
-  </section>
+        function closeGame() {
+            document.getElementById('gameModal').classList.remove('active');
+            gameRunning = false;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
 
-  <!-- BATTLE LITE PAGE -->
-  <section id="battlePage" class="page game-page" style="display:none">
-    <div class="game-hud">
-      <div class="hud-row">
-        <button class="hud-back" id="battleBackBtn">← QUITTER</button>
-        <span class="hud-title">BATTLE LITE</span>
-        <div class="hud-bars">
-          <div class="hbar-row"><span class="hbl">PV</span><div class="hbar"><div id="bl-hp-bar" class="hbf hbf-hp" style="width:100%"></div></div><span id="bl-hp" class="hbv">100</span></div>
-        </div>
-        <div class="hud-stats">
-          <div class="hst-item"><span>☠</span><span id="bl-kills">0</span></div>
-          <div class="hst-item"><span>👾</span><span id="bl-enemies">0</span></div>
-        </div>
-      </div>
-    </div>
-    <canvas id="battleCanvas"></canvas>
-    <div class="ctrl-hint">ZQSD/WASD: Déplacer &nbsp;|&nbsp; ESPACE: Attaquer</div>
-    <div class="touch-ctrls" id="tcBattle">
-      <div class="jzone" id="jzoneBattle"><div class="jbase"><div id="jthumbBattle" class="jthumb"></div></div></div>
-      <button class="touch-act" id="tAttackBl">⚔</button>
-    </div>
-  </section>
+        function toggleGame() {
+            if (!gameRunning) {
+                gameRunning = true;
+                document.getElementById('playBtn').textContent = 'Pause';
+                playCurrentGame();
+            } else {
+                gameRunning = false;
+                document.getElementById('playBtn').textContent = 'Reprendre';
+            }
+        }
 
-  <!-- ARCADE HORDE PAGE -->
-  <section id="arcadePage" class="page game-page" style="display:none">
-    <div class="game-hud">
-      <div class="hud-row">
-        <button class="hud-back" id="arcadeBackBtn">← QUITTER</button>
-        <span class="hud-title">ARCADE HORDE</span>
-        <div class="hud-bars">
-          <div class="hbar-row"><span class="hbl">PV</span><div class="hbar"><div id="ah-hp-bar" class="hbf hbf-hp" style="width:100%"></div></div><span id="ah-hp" class="hbv">100</span></div>
-        </div>
-        <div class="hud-stats">
-          <div class="hst-item"><span>🏆</span><span id="ah-score">0</span></div>
-          <div class="hst-item"><span>🌊</span><span id="ah-wave">1</span></div>
-          <div class="hst-item"><span>👾</span><span id="ah-horde">0</span></div>
-        </div>
-      </div>
-    </div>
-    <canvas id="arcadeCanvas"></canvas>
-    <div class="ctrl-hint">ZQSD/WASD: Déplacer &nbsp;|&nbsp; ESPACE: Attaquer</div>
-    <div class="touch-ctrls" id="tcArcade">
-      <div class="jzone" id="jzoneArcade"><div class="jbase"><div id="jthumbArcade" class="jthumb"></div></div></div>
-      <button class="touch-act" id="tAttackAh">⚔</button>
-    </div>
-  </section>
+        function updateScore() {
+            document.getElementById('score').textContent = gameScore;
+        }
 
-</main>
+        // SKY BIRD GAME
+        class SkyBirdGame {
+            constructor() {
+                this.bird = {
+                    x: canvas.width / 4,
+                    y: canvas.height / 2,
+                    radius: 12,
+                    velocity: 0,
+                    gravity: 0.4,
+                    jump: -8
+                };
+                this.pipes = [];
+                this.pipeGap = 100;
+                this.pipeWidth = 60;
+                this.frameCount = 0;
+                this.gameOver = false;
+            }
 
-<script src="/socket.io/socket.io.js"></script>
-<script type="module" src="/js/main.js"></script>
+            update() {
+                // Bird physics
+                this.bird.velocity += this.bird.gravity;
+                this.bird.y += this.bird.velocity;
+
+                // Boundaries
+                if (this.bird.y - this.bird.radius < 0 || this.bird.y + this.bird.radius > canvas.height) {
+                    this.gameOver = true;
+                }
+
+                // Generate pipes
+                this.frameCount++;
+                if (this.frameCount % 100 === 0) {
+                    const randomGap = Math.random() * (canvas.height - this.pipeGap - 80) + 40;
+                    this.pipes.push({
+                        x: canvas.width,
+                        topHeight: randomGap,
+                        scored: false
+                    });
+                }
+
+                // Update pipes
+                for (let i = this.pipes.length - 1; i >= 0; i--) {
+                    this.pipes[i].x -= 4;
+
+                    // Collision detection
+                    if (this.checkCollision(this.pipes[i])) {
+                        this.gameOver = true;
+                    }
+
+                    // Scoring
+                    if (!this.pipes[i].scored && this.pipes[i].x + this.pipeWidth < this.bird.x) {
+                        this.pipes[i].scored = true;
+                        gameScore++;
+                        updateScore();
+                    }
+
+                    // Remove off-screen pipes
+                    if (this.pipes[i].x + this.pipeWidth < 0) {
+                        this.pipes.splice(i, 1);
+                    }
+                }
+            }
+
+            checkCollision(pipe) {
+                if (this.bird.x + this.bird.radius > pipe.x &&
+                    this.bird.x - this.bird.radius < pipe.x + this.pipeWidth) {
+                    if (this.bird.y - this.bird.radius < pipe.topHeight ||
+                        this.bird.y + this.bird.radius > pipe.topHeight + this.pipeGap) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            draw() {
+                // Clear
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Draw bird
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(this.bird.x, this.bird.y, this.bird.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw pipes
+                ctx.fillStyle = '#00d4ff';
+                for (let pipe of this.pipes) {
+                    ctx.fillRect(pipe.x, 0, this.pipeWidth, pipe.topHeight);
+                    ctx.fillRect(pipe.x, pipe.topHeight + this.pipeGap, this.pipeWidth, canvas.height);
+                }
+
+                // Draw score
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 20px Arial';
+                ctx.fillText('Score: ' + gameScore, 10, 30);
+            }
+        }
+
+        let skyBirdGame = null;
+
+        function initializeGame(gameName) {
+            if (gameName === 'skybird') {
+                skyBirdGame = new SkyBirdGame();
+            }
+        }
+
+        function playCurrentGame() {
+            if (!gameRunning || !skyBirdGame) return;
+
+            skyBirdGame.update();
+            skyBirdGame.draw();
+
+            if (skyBirdGame.gameOver) {
+                gameRunning = false;
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#ff3366';
+                ctx.font = 'bold 32px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 - 30);
+                ctx.fillStyle = '#fff';
+                ctx.font = '20px Arial';
+                ctx.fillText('Score: ' + gameScore, canvas.width / 2, canvas.height / 2 + 20);
+                document.getElementById('playBtn').textContent = 'Recommencer';
+                return;
+            }
+
+            requestAnimationFrame(playCurrentGame);
+        }
+
+        // TOUCH & CLICK CONTROLS
+        document.addEventListener('click', () => {
+            if (gameRunning && currentGame === 'skybird' && skyBirdGame) {
+                skyBirdGame.bird.velocity = skyBirdGame.bird.jump;
+            }
+        });
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (gameRunning && currentGame === 'skybird' && skyBirdGame) {
+                skyBirdGame.bird.velocity = skyBirdGame.bird.jump;
+            }
+        });
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if ((e.key === ' ' || e.key === 'Enter') && gameRunning && currentGame === 'skybird' && skyBirdGame) {
+                skyBirdGame.bird.velocity = skyBirdGame.bird.jump;
+            }
+        });
+    </script>
 </body>
 </html>
