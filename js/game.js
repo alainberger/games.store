@@ -1,6 +1,6 @@
 // ── game.js ─ Game Management ─────────────────────────────────────────────
 
-import { createSurvival }    from '../game/survival.js';
+import { createSurvival }     from '../game/survival.js';
 import { createMiniSurvival } from '../game/miniSurvival.js';
 import { createBattleLite }   from '../game/battleLite.js';
 import { createArcadeHorde }  from '../game/arcadeHorde.js';
@@ -8,10 +8,10 @@ import { $ }                  from './ui.js';
 
 let _instances = {};
 let _socket    = null;
-let _profile   = null;
+let _pseudo    = '';
 
-export function setSocket(s)  { _socket  = s; }
-export function setProfile(p) { _profile = p; }
+export function setSocket(s) { _socket = s; }
+export function setPseudo(p) { _pseudo = p; }
 
 // ── STATIC GAME DATA ───────────────────────────────────────────────────────
 export const GAMES = [
@@ -22,7 +22,7 @@ export const GAMES = [
     desc:  'Survival multijoueur en monde ouvert. Lootez, survivez, éliminez.',
     icon:  '☠',
     color: 'linear-gradient(135deg,#1a0505,#2d0e0e)',
-    tags:  ['Survival','Open World','PvPvE'],
+    tags:  ['Survival', 'Open World', 'PvPvE'],
     multi: true,
   },
   {
@@ -32,17 +32,17 @@ export const GAMES = [
     desc:  'Gérez vos ressources et survivez le plus longtemps possible.',
     icon:  '🌲',
     color: 'linear-gradient(135deg,#051a05,#0e2d0e)',
-    tags:  ['Solo','Survie','Ressources'],
+    tags:  ['Solo', 'Survie', 'Ressources'],
     multi: false,
   },
   {
     id:    'battle-lite',
     title: 'Battle Lite',
     page:  'battlePage',
-    desc:  'Combattez des vagues d\'ennemis IA. Testez vos réflexes.',
+    desc:  "Combattez des vagues d'ennemis IA. Testez vos réflexes.",
     icon:  '⚔',
     color: 'linear-gradient(135deg,#05051a,#0e0e2d)',
-    tags:  ['Combat','Solo','Action'],
+    tags:  ['Combat', 'Solo', 'Action'],
     multi: false,
   },
   {
@@ -52,7 +52,7 @@ export const GAMES = [
     desc:  'Résistez aux hordes infinies. Battez votre record !',
     icon:  '🎮',
     color: 'linear-gradient(135deg,#1a1505,#2d230e)',
-    tags:  ['Arcade','Waves','Solo'],
+    tags:  ['Arcade', 'Waves', 'Solo'],
     multi: false,
   },
 ];
@@ -68,12 +68,12 @@ export function renderGamesGrid(onPlay) {
     card.innerHTML = `
       <div class="gc-banner" style="background:${g.color}">
         <div class="gc-icon">${g.icon}</div>
-        <div class="gc-badge ${g.multi?'multi':'solo'}">${g.multi?'Multijoueur':'Solo'}</div>
+        <div class="gc-badge ${g.multi ? 'multi' : 'solo'}">${g.multi ? 'Multijoueur' : 'Solo'}</div>
       </div>
       <div class="gc-body">
         <div class="gc-title">${g.title}</div>
         <div class="gc-desc">${g.desc}</div>
-        <div class="gc-tags">${g.tags.map(t=>`<span class="gc-tag">${t}</span>`).join('')}</div>
+        <div class="gc-tags">${g.tags.map(t => `<span class="gc-tag">${t}</span>`).join('')}</div>
         <button class="btn-primary btn-full" data-gid="${g.id}">JOUER</button>
       </div>`;
     card.querySelector('button').addEventListener('click', () => onPlay(g.id));
@@ -95,19 +95,19 @@ export function startGame(id) {
   // Size canvas
   const canvas = pageEl.querySelector('canvas');
   if (canvas) {
-    const hudH  = pageEl.querySelector('.game-hud')?.offsetHeight || 52;
+    const hudH    = pageEl.querySelector('.game-hud')?.offsetHeight || 52;
     canvas.width  = pageEl.offsetWidth  || window.innerWidth;
     canvas.height = Math.max(300, (pageEl.offsetHeight || window.innerHeight) - hudH - 36);
   }
 
   if (id === 'dayzero') {
-    _instances[id] = createSurvival($('gameCanvas'), $('svHud'), _socket, _profile);
+    _instances[id] = createSurvival($('gameCanvas'), null, _socket, { pseudo: _pseudo || 'Guest' });
   } else if (id === 'mini-survival') {
-    _instances[id] = createMiniSurvival($('miniCanvas'), $('msHud'));
+    _instances[id] = createMiniSurvival($('miniCanvas'), null);
   } else if (id === 'battle-lite') {
-    _instances[id] = createBattleLite($('battleCanvas'), $('blHud'));
+    _instances[id] = createBattleLite($('battleCanvas'), null);
   } else if (id === 'arcade-horde') {
-    _instances[id] = createArcadeHorde($('arcadeCanvas'), $('ahHud'));
+    _instances[id] = createArcadeHorde($('arcadeCanvas'), null);
   }
 
   _instances[id]?.start();
@@ -126,7 +126,7 @@ window.addEventListener('resize', () => {
     if (!page || page.style.display === 'none') continue;
     const canvas = page.querySelector('canvas');
     if (!canvas) continue;
-    const hudH  = page.querySelector('.game-hud')?.offsetHeight || 52;
+    const hudH    = page.querySelector('.game-hud')?.offsetHeight || 52;
     canvas.width  = page.offsetWidth  || window.innerWidth;
     canvas.height = Math.max(300, (page.offsetHeight || window.innerHeight) - hudH - 36);
   }

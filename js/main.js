@@ -1,11 +1,11 @@
 // ── main.js ─ Entry Point ─────────────────────────────────────────────────
 
 import { showPage, toast, setupHamburger, initHeroCanvas, hideLoading, $ } from './ui.js';
-import { getToken, getProfile, loadProfile, updateNav, renderProfile, setupAuthForms, setupProfilePage, clearAuth } from './auth.js';
-import { initSocket, setupLobbyUI, joinLobby, getSocket } from './multiplayer.js';
-import { renderGamesGrid, startGame, stopAllGames, setSocket, setProfile, GAMES } from './game.js';
+import { getPseudo, setPseudo, hasPseudo } from './pseudo.js';
+import { initSocket, setupLobbyUI, getSocket } from './multiplayer.js';
+import { renderGamesGrid, startGame, stopAllGames, setSocket, setPseudo as setGamePseudo, GAMES } from './game.js';
 
-// ── PAGE MAP: game page id → game id ─────────────────────────────────────
+// ── PAGE → GAME MAP ────────────────────────────────────────────────────────
 const PAGE_TO_GAME = {
   survivalPage: 'dayzero',
   miniPage:     'mini-survival',
@@ -13,52 +13,50 @@ const PAGE_TO_GAME = {
   arcadePage:   'arcade-horde',
 };
 
-// ── LOGOUT ─────────────────────────────────────────────────────────────────
-function doLogout() {
-  clearAuth();
-  location.reload();
-}
-
-// ── NAVIGATE TO PAGE ───────────────────────────────────────────────────────
+// ── NAVIGATE ───────────────────────────────────────────────────────────────
 function navigate(id) {
-  if (!getToken() && id !== 'authPage') {
-    toast('Connectez-vous pour accéder à cette page', 'warning');
-    showPage('authPage');
-    return;
-  }
-  // Stop any running game
   const gamePgs = Object.keys(PAGE_TO_GAME);
   if (!gamePgs.includes(id)) stopAllGames();
-  // If game page, start the game after show
   if (gamePgs.includes(id)) {
     stopAllGames();
     showPage(id);
     setTimeout(() => startGame(PAGE_TO_GAME[id]), 90);
     return;
   }
-  if (id === 'profilePage') renderProfile();
   showPage(id);
 }
 
-// ── EXPOSE GLOBALLY (for HUD back buttons) ────────────────────────────────
+// Expose globally for HUD back buttons
 window.showPage = navigate;
 
-// ── AFTER LOGIN: wire everything ─────────────────────────────────────────
-async function onLogin() {
-  const profile = getProfile();
-  if (!profile) return;
+// ── AFTER PSEUDO IS SET ────────────────────────────────────────────────────
+function onReady() {
+  const pseudo = getPseudo();
+
+  // Show pseudo in topbar + sidebar
+  const tbPseudo = $('tbPseudo');
+  if (tbPseudo) tbPseudo.textContent = pseudo;
+
+  const tbUser = $('tbUserInfo');
+  if (tbUser) tbUser.style.display = '';
+
+  const changeBtn = $('changePseudoBtn');
+  if (changeBtn) changeBtn.style.display = '';
+
+  const sbInfo = $('sbPseudoInfo');
+  if (sbInfo) { sbInfo.textContent = pseudo; sbInfo.style.display = ''; }
+
+  const sbChange = $('sbChangePseudo');
+  if (sbChange) sbChange.style.display = '';
 
   // Init socket
-  initSocket(getToken());
+  initSocket();
 
-  // Give socket a tick to connect then pass to game module
+  // Give socket time to connect then pass to game module
   setTimeout(() => { setSocket(getSocket()); }, 400);
 
-  // Set profile for games
-  setProfile(profile);
-
-  // Update nav
-  updateNav();
+  // Set pseudo for game factories
+  setGamePseudo(pseudo);
 
   // Setup lobby UI
   setupLobbyUI(gameId => {
@@ -68,10 +66,6 @@ async function onLogin() {
     setTimeout(() => startGame(gameId), 90);
   });
 
-  // Setup profile page
-  renderProfile();
-  setupProfilePage();
-
   // Render games grid
   renderGamesGrid(gameId => {
     stopAllGames();
@@ -80,35 +74,62 @@ async function onLogin() {
     setTimeout(() => startGame(gameId), 90);
   });
 
-  // Hero canvas
+  // Animated hero canvas
   initHeroCanvas();
 
-  // Show home
+  // Navigate to home
   showPage('homePage');
+}
+
+// ── PSEUDO FORM ────────────────────────────────────────────────────────────
+function setupPseudoForm() {
+  const input   = $('pseudoInput');
+  const playBtn = $('pseudoPlayBtn');
+  const msg     = $('pseudoMsg');
+
+  const clearMsg = () => { if (msg) { msg.textContent = ''; msg.className = 'pseudo-msg'; } };
+
+  const doPlay = () => {
+    const val = input?.value.trim() || '';
+    if (val.length < 2) {
+      if (msg) { msg.textContent = 'Pseudo trop court (min. 2 caractères)'; msg.className = 'pseudo-msg error'; }
+      input?.focus();
+      return;
+    }
+    clearMsg();
+    setPseudo(val);
+    onReady();
+  };
+
+  // Pre-fill if returning user
+  if (input && getPseudo()) input.value = getPseudo();
+
+  playBtn?.addEventListener('click', doPlay);
+  input?.addEventListener('keydown', e => { if (e.key === 'Enter') doPlay(); });
+  input?.addEventListener('input', clearMsg);
 }
 
 // ── INIT ───────────────────────────────────────────────────────────────────
 async function init() {
-  // Setup hamburger
   setupHamburger();
 
   // Hide all pages initially
   document.querySelectorAll('.page').forEach(p => { p.style.display = 'none'; });
 
   // Brand click
-  $('brandBtn')?.addEventListener('click', () => navigate(getToken() ? 'homePage' : 'authPage'));
+  $('brandBtn')?.addEventListener('click', () => navigate(hasPseudo() ? 'homePage' : 'pseudoPage'));
 
   // Nav buttons (desktop + sidebar)
   document.querySelectorAll('[data-page]').forEach(btn => {
     btn.addEventListener('click', () => navigate(btn.dataset.page));
   });
 
-  // Logout buttons
-  $('logoutBtn')?.addEventListener('click', doLogout);
-  $('sbLogout')?.addEventListener('click', doLogout);
-  $('loginNavBtn')?.addEventListener('click', () => showPage('authPage'));
+  // Change pseudo buttons
+  const goToPseudo = () => { stopAllGames(); showPage('pseudoPage'); };
+  $('changePseudoBtn')?.addEventListener('click', goToPseudo);
+  $('sbChangePseudo')?.addEventListener('click', goToPseudo);
 
-  // Hero play button
+  // Hero play button → DayZero multiplayer
   $('heroPlayBtn')?.addEventListener('click', () => {
     stopAllGames();
     showPage('survivalPage');
@@ -116,29 +137,23 @@ async function init() {
   });
 
   // HUD back buttons
-  ['svBackBtn','miniBackBtn','battleBackBtn','arcadeBackBtn'].forEach(id => {
+  ['svBackBtn', 'miniBackBtn', 'battleBackBtn', 'arcadeBackBtn'].forEach(id => {
     $(id)?.addEventListener('click', () => { stopAllGames(); showPage('homePage'); });
   });
 
-  // Setup auth forms
-  setupAuthForms(async (profile) => {
-    if (profile) await onLogin();
-  });
+  // Setup pseudo form
+  setupPseudoForm();
 
-  // Wait for loading animation then attempt auto-login
+  // Wait for loading animation
   await new Promise(r => setTimeout(r, 1700));
   hideLoading();
 
-  if (getToken()) {
-    try {
-      await loadProfile();
-      await onLogin();
-    } catch {
-      clearAuth();
-      showPage('authPage');
-    }
+  // Auto-login if pseudo already saved
+  if (hasPseudo()) {
+    onReady();
   } else {
-    showPage('authPage');
+    showPage('pseudoPage');
+    $('pseudoInput')?.focus();
   }
 }
 

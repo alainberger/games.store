@@ -1,13 +1,13 @@
 // ── multiplayer.js ─ Socket / Lobby / Chat ────────────────────────────────
 
 import { toast, esc, $ } from './ui.js';
-import { getProfile, avatarUrl } from './auth.js';
+import { getPseudo } from './pseudo.js';
 
 export let socket = null;
 let _lobbyId = null;
 
-export function getSocket()         { return socket; }
-export function getActiveLobbyId()  { return _lobbyId; }
+export function getSocket()        { return socket; }
+export function getActiveLobbyId() { return _lobbyId; }
 
 const GAME_LABELS = {
   'dayzero':       '☠ DayZero',
@@ -17,20 +17,22 @@ const GAME_LABELS = {
 };
 
 // ── INIT ───────────────────────────────────────────────────────────────────
-export function initSocket(token) {
+export function initSocket() {
   if (!window.io) return;
   socket = io();
 
   socket.on('connect', () => {
-    socket.emit('auth', { token });
+    socket.emit('set_pseudo', { pseudo: getPseudo() || 'Guest' });
   });
 
-  socket.on('auth_ok',   () => { /* authenticated */ });
-  socket.on('auth_fail', () => toast('Erreur authentification socket', 'error'));
+  socket.on('pseudo_ok', ({ pseudo }) => {
+    const el = $('tbPseudo');
+    if (el) el.textContent = pseudo;
+  });
 
-  socket.on('lobbies',       renderLobbies);
-  socket.on('lobby_update',  onLobbyUpdate);
-  socket.on('chat',          appendChat);
+  socket.on('lobbies',          renderLobbies);
+  socket.on('lobby_update',     onLobbyUpdate);
+  socket.on('chat',             appendChat);
   socket.on('matchmake_result', onMatchResult);
 
   socket.on('online_count', count => {
@@ -52,7 +54,7 @@ export function setupLobbyUI(onGameStart) {
     const name = $('lobbyName')?.value.trim();
     const game = $('lobbyGame')?.value;
     if (!name) { toast('Entrez un nom de lobby', 'warning'); return; }
-    socket?.emit('create_lobby', { name, game, pseudo: getProfile()?.pseudo || 'Guest' });
+    socket?.emit('create_lobby', { name, game });
     if ($('lobbyName')) $('lobbyName').value = '';
     toast('Lobby créé !', 'success');
   });
@@ -64,7 +66,7 @@ export function setupLobbyUI(onGameStart) {
     const st   = $('mmStatus');
     if (btn) { btn.textContent = 'Recherche...'; btn.disabled = true; }
     if (st)  st.innerHTML = `<span class="dot-on" style="background:var(--warn);box-shadow:0 0 5px var(--warn)"></span><span>Recherche...</span>`;
-    socket?.emit('auto_matchmake', { game, pseudo: getProfile()?.pseudo || 'Guest' });
+    socket?.emit('auto_matchmake', { game });
     // Timeout fallback
     setTimeout(() => {
       if (btn && btn.disabled) {
@@ -77,7 +79,7 @@ export function setupLobbyUI(onGameStart) {
   // Leave lobby
   $('leaveLobbyBtn')?.addEventListener('click', () => {
     if (!_lobbyId) return;
-    socket?.emit('leave_lobby', { lobbyId: _lobbyId, pseudo: getProfile()?.pseudo || 'Guest' });
+    socket?.emit('leave_lobby', { lobbyId: _lobbyId });
     _lobbyId = null;
     _resetActiveLobbyUI();
     toast('Lobby quitté', 'info');
@@ -86,7 +88,7 @@ export function setupLobbyUI(onGameStart) {
   // Start game from lobby
   $('startFromLobbyBtn')?.addEventListener('click', () => {
     if (!_lobbyId) return;
-    const game = $('lobbyGame')?.value || 'dayzero';
+    const game = $('alGameBadge')?.dataset.game || $('lobbyGame')?.value || 'dayzero';
     onGameStart?.(game);
   });
 
@@ -95,7 +97,7 @@ export function setupLobbyUI(onGameStart) {
     const inp = $('chatInput');
     const msg = inp?.value.trim();
     if (!msg || !_lobbyId) return;
-    socket?.emit('chat', { lobbyId: _lobbyId, message: msg, pseudo: getProfile()?.pseudo || 'Guest' });
+    socket?.emit('chat', { lobbyId: _lobbyId, message: msg });
     if (inp) inp.value = '';
   };
   $('sendChatBtn')?.addEventListener('click', sendChat);
@@ -121,9 +123,9 @@ function renderLobbies(lobbies) {
     div.innerHTML = `
       <div class="litem-info">
         <div class="litem-name">${esc(lb.name)}</div>
-        <div class="litem-meta">${GAME_LABELS[lb.game]||lb.game} · ${pc}/8</div>
+        <div class="litem-meta">${GAME_LABELS[lb.game] || lb.game} · ${pc}/8</div>
       </div>
-      <button class="${mine?'btn-outline':'btn-primary'} btn-xs" ${mine?'disabled':''} data-lid="${esc(lb.id)}">
+      <button class="${mine ? 'btn-outline' : 'btn-primary'} btn-xs" ${mine ? 'disabled' : ''} data-lid="${esc(lb.id)}">
         ${mine ? 'Rejoint' : 'Rejoindre'}
       </button>`;
     div.querySelector('button')?.addEventListener('click', () => joinLobby(lb.id));
@@ -133,7 +135,7 @@ function renderLobbies(lobbies) {
 
 export function joinLobby(id) {
   if (_lobbyId === id) return;
-  socket?.emit('join_lobby', { lobbyId: id, pseudo: getProfile()?.pseudo || 'Guest' });
+  socket?.emit('join_lobby', { lobbyId: id });
   _lobbyId = id;
   toast('Lobby rejoint !', 'success');
 }
@@ -141,7 +143,6 @@ export function joinLobby(id) {
 // ── LOBBY UPDATE ───────────────────────────────────────────────────────────
 function onLobbyUpdate(lb) {
   if (!lb) return;
-  // Accept if it's a lobby we just joined or our current lobby
   if (_lobbyId && lb.id !== _lobbyId) return;
   if (!_lobbyId) _lobbyId = lb.id;
 
@@ -156,32 +157,36 @@ function onLobbyUpdate(lb) {
   const sendBtn  = $('sendChatBtn');
   const chatSt   = $('chatStatus');
 
-  if (title)    title.textContent = esc(lb.name);
-  if (content)  content.style.display = '';
-  if (noMsg)    noMsg.style.display = 'none';
-  if (leaveBtn) leaveBtn.style.display = '';
-  if (gameBadge)gameBadge.textContent = GAME_LABELS[lb.game] || lb.game;
+  if (title)     title.textContent = esc(lb.name);
+  if (content)   content.style.display = '';
+  if (noMsg)     noMsg.style.display = 'none';
+  if (leaveBtn)  leaveBtn.style.display = '';
+  if (gameBadge) {
+    gameBadge.textContent = GAME_LABELS[lb.game] || lb.game;
+    gameBadge.dataset.game = lb.game;
+  }
 
   const players = lb.players || [];
   if (pCount) pCount.textContent = `${players.length}/8 joueurs`;
 
   if (pList) {
     pList.innerHTML = '';
+    const me = getPseudo();
     players.forEach(pseudo => {
-      const me = getProfile()?.pseudo;
-      const d  = document.createElement('div');
+      const d = document.createElement('div');
       d.className = 'lplayer';
+      const initial = (pseudo || '?').charAt(0).toUpperCase();
       d.innerHTML = `
-        <img class="lplayer-av" src="${avatarUrl(pseudo)}" alt="${esc(pseudo)}" loading="lazy" />
+        <div class="lplayer-av">${esc(initial)}</div>
         <span class="lplayer-name">${esc(pseudo)}</span>
         ${pseudo === me ? '<span class="badge" style="margin-left:auto">Vous</span>' : ''}`;
       pList.appendChild(d);
     });
   }
 
-  if (chatIn) chatIn.disabled = false;
+  if (chatIn)  chatIn.disabled = false;
   if (sendBtn) sendBtn.disabled = false;
-  if (chatSt) chatSt.innerHTML = `<span class="dot-on"></span><span>${esc(lb.name)}</span>`;
+  if (chatSt)  chatSt.innerHTML = `<span class="dot-on"></span><span>${esc(lb.name)}</span>`;
 }
 
 // ── CHAT ───────────────────────────────────────────────────────────────────
@@ -189,9 +194,9 @@ function appendChat({ pseudo, message, at, system }) {
   const log = $('chatLog');
   if (!log) return;
   log.querySelector('.chat-welcome')?.remove();
-  const d   = document.createElement('div');
+  const d  = document.createElement('div');
   d.className = `cmsg${system ? ' sys' : ''}`;
-  const tm  = at ? new Date(at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '';
+  const tm = at ? new Date(at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '';
   d.innerHTML = system
     ? `<div class="cmsg-text">${esc(message)}</div>`
     : `<div class="cmsg-hd"><span class="cmsg-pseudo">${esc(pseudo)}</span><span class="cmsg-time">${tm}</span></div><div class="cmsg-text">${esc(message)}</div>`;
@@ -213,13 +218,13 @@ function onMatchResult(data) {
 // ── RESET ACTIVE LOBBY UI ──────────────────────────────────────────────────
 function _resetActiveLobbyUI() {
   const els = {
-    activeLobbyTitle: e => e.textContent = 'AUCUN LOBBY',
+    activeLobbyTitle:   e => e.textContent = 'AUCUN LOBBY',
     activeLobbyContent: e => e.style.display = 'none',
-    noLobbyMsg: e => e.style.display = '',
-    leaveLobbyBtn: e => e.style.display = 'none',
-    chatInput: e => e.disabled = true,
-    sendChatBtn: e => e.disabled = true,
-    chatStatus: e => e.innerHTML = `<span class="dot-off"></span><span>Rejoignez un lobby</span>`,
+    noLobbyMsg:         e => e.style.display = '',
+    leaveLobbyBtn:      e => e.style.display = 'none',
+    chatInput:          e => e.disabled = true,
+    sendChatBtn:        e => e.disabled = true,
+    chatStatus:         e => e.innerHTML = `<span class="dot-off"></span><span>Rejoignez un lobby</span>`,
   };
   for (const [id, fn] of Object.entries(els)) { const el = $(id); if (el) fn(el); }
 }

@@ -37,7 +37,6 @@
 
   <nav class="tb-nav" id="mainNav">
     <button class="nav-btn" data-page="homePage">⊞ Accueil</button>
-    <button class="nav-btn" data-page="profilePage">◉ Profil</button>
     <button class="nav-btn" data-page="lobbyPage">◈ Lobby</button>
     <div class="nav-div"></div>
     <button class="nav-btn nav-game" data-page="survivalPage">DayZero</button>
@@ -48,12 +47,10 @@
 
   <div class="tb-right">
     <div id="tbUserInfo" class="tb-user" style="display:none">
-      <img id="tbAvatar" class="tb-avatar" src="" alt="Avatar" />
+      <span class="dot-on"></span>
       <span id="tbPseudo" class="tb-pseudo"></span>
-      <span class="tb-online"><span class="dot-on"></span>En ligne</span>
     </div>
-    <button id="logoutBtn" class="btn-danger btn-sm" style="display:none">Déco.</button>
-    <button id="loginNavBtn" class="btn-outline btn-sm">Connexion</button>
+    <button id="changePseudoBtn" class="btn-outline btn-sm" style="display:none">✎ Pseudo</button>
   </div>
 </header>
 
@@ -65,7 +62,6 @@
   </div>
   <nav class="sb-nav">
     <button class="sb-btn" data-page="homePage">⊞ Accueil</button>
-    <button class="sb-btn" data-page="profilePage">◉ Profil</button>
     <button class="sb-btn" data-page="lobbyPage">◈ Lobby</button>
     <div class="sb-sep">JEUX</div>
     <button class="sb-btn" data-page="survivalPage">☠ DayZero</button>
@@ -74,7 +70,8 @@
     <button class="sb-btn" data-page="arcadePage">🎮 Arcade Horde</button>
   </nav>
   <div class="sb-footer">
-    <button id="sbLogout" class="btn-danger btn-sm" style="display:none;width:100%">Déconnexion</button>
+    <div id="sbPseudoInfo" class="sb-pseudo-info" style="display:none"></div>
+    <button id="sbChangePseudo" class="btn-outline btn-sm" style="display:none;width:100%">✎ Changer pseudo</button>
   </div>
 </aside>
 <div id="sbOverlay"></div>
@@ -82,54 +79,29 @@
 <!-- ====== PAGES ====== -->
 <main id="app">
 
-  <!-- AUTH PAGE -->
-  <section id="authPage" class="page">
-    <div class="auth-wrap">
-      <div class="auth-brand">
-        <div class="auth-logo">☣</div>
+  <!-- PSEUDO PAGE -->
+  <section id="pseudoPage" class="page">
+    <div class="pseudo-wrap">
+      <div class="pseudo-brand">
+        <div class="pseudo-logo">☣</div>
         <h1>SURVIVAL<span>HUB</span></h1>
         <p>Plateforme de jeux survival multijoueur</p>
       </div>
-      <div class="auth-card">
-        <div class="auth-tabs">
-          <button class="atab active" id="atab-login">Connexion</button>
-          <button class="atab" id="atab-register">Inscription</button>
+      <div class="pseudo-card">
+        <h2>CHOISISSEZ VOTRE NOM</h2>
+        <p class="pseudo-subtitle">Votre identité de survivant — aucun compte requis</p>
+        <div class="fgroup">
+          <label>Pseudo (2–20 caractères)</label>
+          <input type="text" id="pseudoInput" placeholder="Ex: Survivant42" maxlength="20" autocomplete="off" spellcheck="false" />
         </div>
-        <div id="form-login" class="aform">
-          <div class="fgroup">
-            <label>Email</label>
-            <input type="email" id="loginEmail" placeholder="survivor@domain.com" autocomplete="email" />
-          </div>
-          <div class="fgroup">
-            <label>Mot de passe</label>
-            <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" />
-          </div>
-          <button id="loginBtn" class="btn-primary btn-full">SE CONNECTER</button>
-          <p class="auth-link">Pas de compte ? <a href="#" id="toRegisterLink">Inscription →</a></p>
-        </div>
-        <div id="form-register" class="aform" style="display:none">
-          <div class="fgroup">
-            <label>Pseudo</label>
-            <input type="text" id="regPseudo" placeholder="Survivant42" maxlength="20" />
-          </div>
-          <div class="fgroup">
-            <label>Email</label>
-            <input type="email" id="regEmail" placeholder="survivor@domain.com" autocomplete="email" />
-          </div>
-          <div class="fgroup">
-            <label>Mot de passe</label>
-            <input type="password" id="regPassword" placeholder="Min. 6 caractères" minlength="6" autocomplete="new-password" />
-          </div>
-          <button id="registerBtn" class="btn-primary btn-full">CRÉER UN COMPTE</button>
-          <p class="auth-link">Déjà un compte ? <a href="#" id="toLoginLink">Connexion →</a></p>
-        </div>
-        <div id="authMsg" class="auth-msg"></div>
+        <button id="pseudoPlayBtn" class="btn-primary btn-full btn-lg">⚡ JOUER</button>
+        <div id="pseudoMsg" class="pseudo-msg"></div>
       </div>
-      <div class="auth-feats">
+      <div class="pseudo-feats">
         <div class="af"><span>🎮</span><span>4 Jeux</span></div>
         <div class="af"><span>🌐</span><span>Multijoueur</span></div>
-        <div class="af"><span>🏆</span><span>Classement</span></div>
         <div class="af"><span>⚔</span><span>PvPvE</span></div>
+        <div class="af"><span>🏆</span><span>Waves</span></div>
       </div>
     </div>
   </section>
@@ -166,66 +138,8 @@
       <div class="feats-grid">
         <div class="feat"><div class="feat-ico">🌐</div><h3>Multijoueur Réel</h3><p>WebSocket temps réel, synchronisation instantanée</p></div>
         <div class="feat"><div class="feat-ico">🧠</div><h3>IA Zombies</h3><p>Ennemis intelligents avec spawn et comportement adaptatifs</p></div>
-        <div class="feat"><div class="feat-ico">📊</div><h3>Progression</h3><p>Kills, XP, niveaux et inventaire persistants</p></div>
+        <div class="feat"><div class="feat-ico">🎮</div><h3>4 Modes de Jeu</h3><p>DayZero, Mini Survival, Battle Lite et Arcade Horde</p></div>
         <div class="feat"><div class="feat-ico">🎯</div><h3>Matchmaking</h3><p>Rejoignez une partie automatiquement en un clic</p></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- PROFILE PAGE -->
-  <section id="profilePage" class="page" style="display:none">
-    <div class="page-wrap">
-      <div class="page-hd"><h1>PROFIL DU SURVIVANT</h1><div class="phd-line"></div></div>
-      <div class="profile-grid">
-        <div class="p-card p-identity">
-          <div class="p-av-wrap">
-            <img id="profileAvatar" class="p-avatar" src="" alt="Avatar" />
-            <div class="p-online"><span class="dot-on"></span> En ligne</div>
-          </div>
-          <div class="fgroup">
-            <label>Pseudo</label>
-            <input type="text" id="profilePseudo" placeholder="Votre pseudo" maxlength="20" />
-          </div>
-          <div class="fgroup">
-            <label>Style d'avatar</label>
-            <div id="avatarStyleGrid" class="av-style-grid"></div>
-          </div>
-          <div class="fgroup">
-            <label>Seed</label>
-            <div class="seed-row">
-              <input type="text" id="avatarSeed" placeholder="seed..." />
-              <button id="randomSeedBtn" class="btn-outline btn-sm" type="button">🎲</button>
-            </div>
-          </div>
-          <button id="saveProfileBtn" class="btn-primary btn-full">SAUVEGARDER</button>
-        </div>
-
-        <div class="p-stats-col">
-          <div class="p-card">
-            <h3 class="p-card-title">STATISTIQUES</h3>
-            <div class="stats-grid">
-              <div class="stat-box"><div class="stat-ico">☠</div><div id="sKills" class="stat-val">0</div><div class="stat-lbl">Kills</div></div>
-              <div class="stat-box"><div class="stat-ico">💀</div><div id="sDeaths" class="stat-val">0</div><div class="stat-lbl">Morts</div></div>
-              <div class="stat-box"><div class="stat-ico">🏆</div><div id="sWins" class="stat-val">0</div><div class="stat-lbl">Victoires</div></div>
-              <div class="stat-box"><div class="stat-ico">⭐</div><div id="sXP" class="stat-val">0</div><div class="stat-lbl">XP</div></div>
-            </div>
-          </div>
-          <div class="p-card">
-            <h3 class="p-card-title">NIVEAU &amp; PROGRESSION</h3>
-            <div class="lvl-row">
-              <div class="lvl-badge" id="levelBadge">1</div>
-              <div class="lvl-info">
-                <div id="levelTitle" class="lvl-title">Novice</div>
-                <div class="xp-wrap"><div id="xpBar" class="xp-fill"></div></div>
-                <div id="xpText" class="xp-text">0 / 1000 XP</div>
-              </div>
-            </div>
-          </div>
-          <div class="p-card">
-            <h3 class="p-card-title">INVENTAIRE</h3>
-            <div id="inventoryGrid" class="inv-grid"></div>
-          </div>
-        </div>
       </div>
     </div>
   </section>
